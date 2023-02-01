@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom
+**/FileContentIndex
+**/DDD/v17
+**/.vs
+/.vs/DDD/v17/.wsuo
+/.vs/VSWorkspaceState.json
+/DDD/.vs/DDD/v17/.suo
