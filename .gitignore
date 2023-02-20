@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/
 .expo/
 dist/
@@ -12,3 +13,5 @@ web-build/
 
 # macOS
 .DS_Store
+=======
+>>>>>>> 736e4ebd5dd2bc0528bd32119bb9922baf4c2311
