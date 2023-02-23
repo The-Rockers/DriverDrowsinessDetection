@@ -47,6 +47,11 @@
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f39d8f1b-a82e-429b-8ddf-b21dde439c61"
+      }
+    }
   }
 }
