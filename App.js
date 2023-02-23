@@ -1,5 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, TextInput, View, Button, Text, Linking } from 'react-native';
+
+/*
+  When importing tfjs-react-native, an error responded showing that tfjs
+  expecting a "main" module field ??? 
+*/
+
+// import { bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native' // fails
+import * as tf from '@tensorflow/tfjs' // works
+import * as FileSystem from 'expo-file-system'; // works
+
+//const modelJSON = require('./graphModel/model.json')
+//const modelWeights = require('./graphModel/group1-shard.bin')
+
+/*
+  I thought these libraries wold prove useful, but they turned out not to "really"
+  be what we needed.
+*/
 //import { Camera, useCameraDevices } from 'react-native-vision-camera';
 //import 'react-native-reanimated';
 
@@ -73,7 +90,7 @@ export default function App() {
         <Button title="Activate Drowisness Detection" />
         <Button onPress={() => console.log("press")} title="Deactivate Drowsiness Detection" />
         <Button onPress={() => getCameraPermissionStatus} title="Configure Settings" />
-        <Text>test</Text>
+        <Text> This works fine for now</Text>
       </View>
       <View>
         {
