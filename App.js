@@ -71,8 +71,9 @@ export default function App() {
       </View>
       <View style={styles.utilContainer}>
         <Button title="Activate Drowisness Detection" />
-        <Button title="Deactivate Drowsiness Detection" />
+        <Button onPress={() => console.log("press")} title="Deactivate Drowsiness Detection" />
         <Button onPress={() => getCameraPermissionStatus} title="Configure Settings" />
+        <Text>test</Text>
       </View>
       <View>
         {
