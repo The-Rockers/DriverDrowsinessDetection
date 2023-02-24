@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RNapp",
-    "slug": "RNapp",
+    "name": "react-native-tfjs",
+    "slug": "react-native-tfjs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,10 +24,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.rsnair.antisomnus.rntfjs"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eba8cd6c-1016-43ec-bfe5-f7a820e7a7ed"
+      }
     }
   }
 }
