@@ -38,7 +38,19 @@ class _DrowsinessGraphState extends State<DrowsinessGraph> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Drowsiness Graph'),
+        title: const Text('ADDDS Dashboard'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.reorder,
+              color: Colors.white
+
+            ),
+            onPressed: (){
+                
+            },
+          ),
+        ]
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
