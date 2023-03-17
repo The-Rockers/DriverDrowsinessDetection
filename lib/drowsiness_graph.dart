@@ -21,24 +21,34 @@ class _DrowsinessGraphState extends State<DrowsinessGraph> {
       appBar: AppBar(
         title: const Text('ADDDS Dashboard'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.reorder,
-              color: Colors.white
-
-            ),
-            onPressed: (){
-                
-            },
-          ),
         ]
       ),
+      drawer: Drawer( // Newly added drawer
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: const <Widget>[
+            ListTile(
+              leading: Icon(Icons.account_circle_rounded),
+              title: Text("Log in"),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle_rounded),
+              title: Text("Log out"),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Settings"),
+            ),
+          ]
+        ),
+      ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
+            Expanded( // This is the widget where a majority of the code is contained
               child: BarChart(
                 BarChartData(
                   barTouchData: BarTouchData(enabled: false),
