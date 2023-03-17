@@ -8,7 +8,7 @@ class DrowsinessData {
 List<DrowsinessData> mockData = [
   DrowsinessData(
     weekStart: DateTime(2023, 3, 6),
-    drowsiness: [2, 5, 3, 1, 4, 0, 0, 5, 14,3,14,2,15,6],
+    drowsiness: [1,2,3,4,5,6,7],
   ),
   DrowsinessData(
     weekStart: DateTime(2023, 2, 27),
