@@ -4,12 +4,22 @@ class SettingsDrawer extends StatelessWidget {
 
   VoidCallback? modifyCurrentWeekRange;
   int? currentWeekRange;
+  VoidCallback? alternateChartType;
+  bool isBarChart;
 
-  SettingsDrawer(this.modifyCurrentWeekRange, this.currentWeekRange);
+  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.isBarChart, this.currentWeekRange});
 
   @override
   Widget build(BuildContext context) {
     ButtonStyle style = ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+    String currentChartType = "";
+
+    if(isBarChart){ // replace with ternary expression
+      currentChartType = "Bar Chart";
+    }
+    else{
+      currentChartType = "Line Chart";
+    }
 
     return Drawer( // Newly added drawer
         child: ListView(
@@ -41,8 +51,18 @@ class SettingsDrawer extends StatelessWidget {
                 ),
                 Text(currentWeekRange.toString() + " weeks"),
               ],
-            )
-
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                ElevatedButton(
+                  style: style,
+                  onPressed: alternateChartType,
+                  child: Text("Alternate chart type"),
+                ),
+                Text(currentChartType),
+              ],
+            ),
           ]
         ),
       );

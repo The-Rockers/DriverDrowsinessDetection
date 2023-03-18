@@ -1,61 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'standard_bar_chart.dart';
+import 'standard_line_chart.dart';
 
 class DrowsinessGraph extends StatelessWidget {
   final List<int> data;
   final List<String> days;
+  final bool isBarChart;
 
-  DrowsinessGraph({required this.data, required this.days});
+  DrowsinessGraph({required this.data, required this.days, required this.isBarChart});
 
   @override
   Widget build(BuildContext context) {
 
-    return Expanded( // This is the widget where a majority of the code is contained
-      child: BarChart(
-        BarChartData(
-          barTouchData: BarTouchData(enabled: false),
-          titlesData: FlTitlesData(
-            leftTitles: SideTitles(
-              showTitles: true,
-              margin: 12,
-              getTextStyles: (context, value) => const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-            bottomTitles: SideTitles(
-              showTitles: true,
-              margin: 8,
-              getTextStyles: (context, value) => const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
-              getTitles: (double value) {
-                //return 'Day ${value.toInt() + 1}';
-                return days[value.toInt()];
-              },
-            ),
-          ),
-          barGroups: data
-              .asMap()
-              .map((index, value) => MapEntry(
-                    index,
-                    BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          y: value.toDouble(),
-                          colors: [Colors.blueGrey],
-                          width: 20,
-                        ),
-                      ],
-                    ),
-                  ))
-              .values
-              .toList(),
-        ),
-      ),
-      ); // Keep this here
+    if(isBarChart){
+      return StandardBarChart(data: data, days: days); //Keep this here
+    }
+    else{
+      return StandardLineChart(data: data, days: days); //Keep this here
+    }
 
   }
 }

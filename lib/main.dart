@@ -21,6 +21,8 @@ class MyAppState extends State<MyApp>{
   int currentWeekIndex = 0;
   int currentWeekRange = 1;
 
+  bool isBarChart = true;
+
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
       case 1:
@@ -39,6 +41,12 @@ class MyAppState extends State<MyApp>{
         });
         break;
     }
+  }
+
+  void alternateChartType(){
+    setState((){
+      isBarChart = !isBarChart;
+    });
   }
 
   void decrementWeekIndex(){
@@ -111,14 +119,14 @@ class MyAppState extends State<MyApp>{
           actions: <Widget>[
           ]
         ),
-        drawer: SettingsDrawer(modifyCurrentWeekRange, currentWeekRange),
+        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               //crossAxisAlignment: CrossAxisAlignment.stretch,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                DrowsinessGraph(data:data, days:daysText),
+                DrowsinessGraph(data:data, days:daysText, isBarChart: isBarChart), // Must make state later
                 const SizedBox(height: 16),
                 Text(
                   '${weekText}',
