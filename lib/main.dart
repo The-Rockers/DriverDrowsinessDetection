@@ -6,8 +6,6 @@ import 'drowsiness_data.dart';
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
 
-
-
 void main() {
   runApp(MyApp());
 }
@@ -59,55 +57,46 @@ class MyAppState extends State<MyApp>{
   @override
   Widget build(BuildContext context) {
     // Variables declared here are redefined each time build runs
+    
     List<int> data = []; // For passing into DrowsinessGraph
     List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
     Map<int, DateTime> weeks = {}; // For collective DateTime objects for processing and indexing
-    final weekStart = mockData[currentWeekIndex].weekStart;
     String weekText = ""; // For displaying text showing the range of weeks under graph
 
     for(var week = currentWeekIndex; week < (currentWeekIndex + currentWeekRange); week++){ // for the number of weeks
-      weeks[week % mockData.length] = mockData[(week % mockData.length)].weekStart;
-      for(int day = 0; day < 7; day++){ // for each day in the week        
-        DateTime nextDate = (mockData[(week % mockData.length)].weekStart).add( Duration(days: day));
 
-        //String monthText = (mockData[(week % mockData.length)].weekStart.month).toString();
-        //String dayText = ((mockData[(week % mockData.length)].weekStart.day) + day).toString();
+      int key = week % mockData.length;
+      weeks[key] = mockData[key].weekStart; //Key used index for mockData
+
+      for(int day = 0; day < 7; day++){ // for each day in the week   
+
+        DateTime nextDate = (mockData[(week % mockData.length)].weekStart).add( Duration(days: day));
         String monthText = (nextDate.month.toString());
         String dayText = (nextDate.day.toString());
 
         daysText.add('${monthText}/${dayText}');
         data.add(mockData[(week % mockData.length)].drowsiness[day]);
+
       }
+
     }
 
-    /*
-    final today = DateTime.now();
-    final fiftyDaysFromNow = today.add(const Duration(days: 50));
+    int lowestWeekIndex = (weeks.keys).reduce(min);
+    int highestWeekIndex = (weeks.keys).reduce(max);
 
-    print("Today"+ '${today}');
-    print("Fifty days from now: " + '${fiftyDaysFromNow}');
-    */
-
+    // Write the range of weeks displayed under graph
     if(currentWeekRange == 1){
-      weekText = 'Week of ${weekStart.month}/${weekStart.day}/${weekStart.year}';
+      weekText = 'Week of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
     }
     else{
-
-      int lowestWeekIndex = (weeks.keys).reduce(min);
-      int highestWeekIndex = (weeks.keys).reduce(max);
-
       for(var i = 0; i < 2; i++){
-
-        if(i == 0){
-          // From lowest week
+        if(i == 0){ // From lowest week
           weekText = 'Weeks of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
         }
-        else{
-          // To highest week
+        else{ // To highest week
           weekText  += ' - ${weeks[highestWeekIndex]?.month}/${weeks[highestWeekIndex]?.day}/${weeks[highestWeekIndex]?.year}';
         }
       }
-
     }
 
     return MaterialApp(
