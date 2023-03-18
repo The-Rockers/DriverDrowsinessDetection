@@ -3,8 +3,9 @@ import 'package:fl_chart/fl_chart.dart';
 
 class DrowsinessGraph extends StatelessWidget {
   final List<int> data;
+  final List<String> days;
 
-  DrowsinessGraph({required this.data});
+  DrowsinessGraph({required this.data, required this.days});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,8 @@ class DrowsinessGraph extends StatelessWidget {
                 fontSize: 12,
               ),
               getTitles: (double value) {
-                return 'Day ${value.toInt() + 1}';
+                //return 'Day ${value.toInt() + 1}';
+                return days[value.toInt()];
               },
             ),
           ),

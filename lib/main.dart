@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'dart:math';
+
 import 'navigation_row.dart';
 import 'drowsiness_data.dart';
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
+
+
 
 void main() {
   runApp(MyApp());
@@ -16,6 +19,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp>{
+  // Variables defined here are more long lasting
   int currentWeekIndex = 0;
   int currentWeekRange = 1;
 
@@ -54,15 +58,57 @@ class MyAppState extends State<MyApp>{
 
   @override
   Widget build(BuildContext context) {
-    List<int> data = [];
+    // Variables declared here are redefined each time build runs
+    List<int> data = []; // For passing into DrowsinessGraph
+    List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
+    Map<int, DateTime> weeks = {}; // For collective DateTime objects for processing and indexing
+    final weekStart = mockData[currentWeekIndex].weekStart;
+    String weekText = ""; // For displaying text showing the range of weeks under graph
 
     for(var week = currentWeekIndex; week < (currentWeekIndex + currentWeekRange); week++){ // for the number of weeks
-      for(var day = 0; day < 7; day++){ // for each day in the week
+      weeks[week % mockData.length] = mockData[(week % mockData.length)].weekStart;
+      for(int day = 0; day < 7; day++){ // for each day in the week        
+        DateTime nextDate = (mockData[(week % mockData.length)].weekStart).add( Duration(days: day));
+
+        //String monthText = (mockData[(week % mockData.length)].weekStart.month).toString();
+        //String dayText = ((mockData[(week % mockData.length)].weekStart.day) + day).toString();
+        String monthText = (nextDate.month.toString());
+        String dayText = (nextDate.day.toString());
+
+        daysText.add('${monthText}/${dayText}');
         data.add(mockData[(week % mockData.length)].drowsiness[day]);
       }
     }
 
-    final weekStart = mockData[currentWeekIndex].weekStart;
+    /*
+    final today = DateTime.now();
+    final fiftyDaysFromNow = today.add(const Duration(days: 50));
+
+    print("Today"+ '${today}');
+    print("Fifty days from now: " + '${fiftyDaysFromNow}');
+    */
+
+    if(currentWeekRange == 1){
+      weekText = 'Week of ${weekStart.month}/${weekStart.day}/${weekStart.year}';
+    }
+    else{
+
+      int lowestWeekIndex = (weeks.keys).reduce(min);
+      int highestWeekIndex = (weeks.keys).reduce(max);
+
+      for(var i = 0; i < 2; i++){
+
+        if(i == 0){
+          // From lowest week
+          weekText = 'Weeks of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
+        }
+        else{
+          // To highest week
+          weekText  += ' - ${weeks[highestWeekIndex]?.month}/${weeks[highestWeekIndex]?.day}/${weeks[highestWeekIndex]?.year}';
+        }
+      }
+
+    }
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -70,7 +116,6 @@ class MyAppState extends State<MyApp>{
         primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //home: DrowsinessGraph(),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('ADDDS Dashboard'),
@@ -81,12 +126,13 @@ class MyAppState extends State<MyApp>{
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              //crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                DrowsinessGraph(data:data),
+                DrowsinessGraph(data:data, days:daysText),
                 const SizedBox(height: 16),
                 Text(
-                  'Week of ${weekStart.day}/${weekStart.month}/${weekStart.year}',
+                  '${weekText}',
                   style: const TextStyle(fontSize: 24),
                 ),
                 const SizedBox(height: 16),
