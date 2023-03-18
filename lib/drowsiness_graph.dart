@@ -30,7 +30,7 @@ class DrowsinessGraph extends StatelessWidget {
                 fontSize: 12,
               ),
               getTitles: (double value) {
-                return 'D${value.toInt() + 1}';
+                return 'Day ${value.toInt() + 1}';
               },
             ),
           ),

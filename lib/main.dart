@@ -17,6 +17,27 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp>{
   int currentWeekIndex = 0;
+  int currentWeekRange = 1;
+
+  void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
+    switch(currentWeekRange){
+      case 1:
+        setState((){
+          currentWeekRange = 2;
+        });
+        break;
+      case 2:
+        setState((){
+          currentWeekRange = 4;
+        });
+        break;
+      case 4:
+        setState((){
+          currentWeekRange = 1;
+        });
+        break;
+    }
+  }
 
   void decrementWeekIndex(){
     setState(() {
@@ -33,7 +54,14 @@ class MyAppState extends State<MyApp>{
 
   @override
   Widget build(BuildContext context) {
-    List<int> data = mockData[currentWeekIndex].drowsiness;
+    List<int> data = [];
+
+    for(var week = currentWeekIndex; week < (currentWeekIndex + currentWeekRange); week++){ // for the number of weeks
+      for(var day = 0; day < 7; day++){ // for each day in the week
+        data.add(mockData[(week % mockData.length)].drowsiness[day]);
+      }
+    }
+
     final weekStart = mockData[currentWeekIndex].weekStart;
 
     return MaterialApp(
@@ -49,7 +77,7 @@ class MyAppState extends State<MyApp>{
           actions: <Widget>[
           ]
         ),
-        drawer: SettingsDrawer(),
+        drawer: SettingsDrawer(modifyCurrentWeekRange, currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
 class SettingsDrawer extends StatelessWidget {
+
+  VoidCallback? modifyCurrentWeekRange;
+  int? currentWeekRange;
+
+  SettingsDrawer(this.modifyCurrentWeekRange, this.currentWeekRange);
+
   @override
   Widget build(BuildContext context) {
+    ButtonStyle style = ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+
     return Drawer( // Newly added drawer
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const <Widget>[
+          children: <Widget>[
             ListTile(
               leading: Icon(Icons.account_circle_rounded),
               title: Text("Log in"),
@@ -23,6 +31,18 @@ class SettingsDrawer extends StatelessWidget {
               leading: Icon(Icons.settings),
               title: Text("Settings"),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                ElevatedButton(
+                  style: style,
+                  onPressed: modifyCurrentWeekRange,
+                  child: Text("Alternate time range"),
+                ),
+                Text(currentWeekRange.toString() + " weeks"),
+              ],
+            )
+
           ]
         ),
       );

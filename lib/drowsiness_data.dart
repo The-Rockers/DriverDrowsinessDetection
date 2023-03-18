@@ -12,7 +12,14 @@ List<DrowsinessData> mockData = [
   ),
   DrowsinessData(
     weekStart: DateTime(2023, 2, 27),
-    drowsiness: [1, 0, 2, 4, 3, 1, 0],
+    drowsiness: [7, 6, 5, 4, 3, 2, 1],
   ),
-  // Add more data if needed
+  DrowsinessData(
+    weekStart: DateTime(2023, 2, 20),
+    drowsiness: [1, 3, 5, 7, 9, 11, 13],
+  ),
+  DrowsinessData(
+    weekStart: DateTime(2023, 2, 13),
+    drowsiness: [13, 11,9, 7, 5, 3, 1],
+  ),
 ];
