@@ -46,7 +46,7 @@ class StandardBarChart extends StatelessWidget {
                         BarChartRodData(
                           y: value.toDouble(),
                           colors: [Colors.blueGrey],
-                          width: 20,
+                          width: 8,
                         ),
                       ],
                     ),

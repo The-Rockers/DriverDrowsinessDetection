@@ -10,7 +10,7 @@ class StandardLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double xCoorSpacing = (screenWidth - 300) / data.length;
+    //double xCoorSpacing = (screenWidth - 300) / data.length;
 
     return Expanded(
       child: LineChart(

@@ -34,10 +34,6 @@ class SettingsDrawer extends StatelessWidget {
               title: Text("Log out"),
             ),
             ListTile(
-              leading: Icon(Icons.import_export),
-              title: Text("Export Documents"),
-            ),
-            ListTile(
               leading: Icon(Icons.settings),
               title: Text("Settings"),
             ),
@@ -62,6 +58,18 @@ class SettingsDrawer extends StatelessWidget {
                   child: Text("Alternate chart type"),
                 ),
                 Text(currentChartType),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                ElevatedButton(
+                  style: style,
+                  onPressed: null,
+                  child: Text("Export As File"),
+                ),
+                Text("null"),
               ],
             ),
           ]
