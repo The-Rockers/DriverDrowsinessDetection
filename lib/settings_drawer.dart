@@ -76,8 +76,8 @@ class SettingsDrawer extends StatelessWidget {
                   onPressed: exportFile,
                   child: Text("Export As File"),
                 ),
-                /*DropdownButton<String>( // This threw an exception
-                  value: fileType,
+                DropdownButton<String>(
+                  value: fileType, // fileType needs defualt value to avoid crashing
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(color: Colors.blue),
@@ -92,7 +92,7 @@ class SettingsDrawer extends StatelessWidget {
                       child: Text(value),
                     );
                   }).toList(),
-                ),*/
+                ),
               ],
             ),
           ]

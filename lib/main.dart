@@ -24,7 +24,7 @@ class MyAppState extends State<MyApp>{
   bool isBarChart = true;
 
   List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
-  String fileType = "";
+  String fileType = 'PDF'; // Needs default value to avoid crashing
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
@@ -65,7 +65,7 @@ class MyAppState extends State<MyApp>{
   }
 
   void exportFile(){
-    print("Export feature to be implemented");
+    print("Selected: ${fileType}");
   }
 
   void changeExportFileType(String? value){
