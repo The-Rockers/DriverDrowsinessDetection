@@ -2,6 +2,9 @@
 node_modules/
 .expo/
 dist/
+web/
+buid/
+.dart_tool/
 npm-debug.*
 *.jks
 *.p8
