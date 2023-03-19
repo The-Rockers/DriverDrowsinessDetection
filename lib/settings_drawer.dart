@@ -4,10 +4,15 @@ class SettingsDrawer extends StatelessWidget {
 
   VoidCallback? modifyCurrentWeekRange;
   int? currentWeekRange;
+
   VoidCallback? alternateChartType;
   bool isBarChart;
+  
+  final void Function(String?)? Function() selectFileType;
+  List<String> fileList;
+  String fileType;
 
-  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.isBarChart, this.currentWeekRange});
+  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.selectFileType, required this.fileList, required this.fileType, required this.isBarChart, this.currentWeekRange});
 
   @override
   Widget build(BuildContext context) {
@@ -66,10 +71,26 @@ class SettingsDrawer extends StatelessWidget {
               children: <Widget>[
                 ElevatedButton(
                   style: style,
-                  onPressed: null,
+                  onPressed: () => print("hello"),
                   child: Text("Export As File"),
                 ),
-                Text("null"),
+                DropdownButton<String>(
+                  value: fileType,
+                  icon: const Icon(Icons.arrow_downward),
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.blue),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.blue,
+                  ),
+                  onChanged: selectFileType(),
+                  items: fileList.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
               ],
             ),
           ]

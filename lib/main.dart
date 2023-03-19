@@ -23,6 +23,9 @@ class MyAppState extends State<MyApp>{
 
   bool isBarChart = true;
 
+  List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
+  String fileType = "";
+
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
       case 1:
@@ -59,6 +62,20 @@ class MyAppState extends State<MyApp>{
     setState((){
       isBarChart = !isBarChart;
     });
+  }
+
+  void changeExportFileType(String? value){
+    setState(() {
+      fileType = value!;
+    });
+  }
+
+  void Function(String?)? selectFileType(){
+
+    return(
+      changeExportFileType
+    );
+
   }
 
   @override
@@ -118,7 +135,8 @@ class MyAppState extends State<MyApp>{
           actions: <Widget>[
           ]
         ),
-        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
+        // probably should refactor drawer lol
+        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, selectFileType: selectFileType, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
