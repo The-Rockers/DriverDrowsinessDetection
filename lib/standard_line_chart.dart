@@ -41,13 +41,13 @@ class StandardLineChart extends StatelessWidget {
               LineChartBarData(
                 spots: data.
                   asMap()
-                  .entries.map((entry) => FlSpot(((entry.key.toDouble()) * xCoorSpacing) + 100, entry.value.toDouble())) // wants x and Y coor of point
+                  .entries.map((entry) => FlSpot((entry.key.toDouble() * 1), entry.value.toDouble())) // wants x and Y coor of point
                   .toList(),
-                isCurved: false,
+                isCurved: true,
                 dotData: FlDotData(
-                  show: false,
+                  show: true,
                 ),
-                colors: [Colors.red]
+                colors: [Colors.blue]
               ),
           ],
           borderData: FlBorderData(

@@ -11,7 +11,7 @@ class StandardBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded( // This is the widget where a majority of the code is contained
-      child: BarChart(
+      child: BarChart( // This widget causes throws a runtime exception when changing time range from 4 weeks to 1 week. Works fine though.
         BarChartData(
           barTouchData: BarTouchData(enabled: false),
           titlesData: FlTitlesData(

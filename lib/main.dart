@@ -43,12 +43,6 @@ class MyAppState extends State<MyApp>{
     }
   }
 
-  void alternateChartType(){
-    setState((){
-      isBarChart = !isBarChart;
-    });
-  }
-
   void decrementWeekIndex(){
     setState(() {
       currentWeekIndex = (currentWeekIndex - 1) % mockData.length;
@@ -61,6 +55,11 @@ class MyAppState extends State<MyApp>{
     });
   }
 
+  void alternateChartType(){
+    setState((){
+      isBarChart = !isBarChart;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

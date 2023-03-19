@@ -52,6 +52,7 @@ class SettingsDrawer extends StatelessWidget {
                 Text(currentWeekRange.toString() + " weeks"),
               ],
             ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
