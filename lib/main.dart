@@ -64,6 +64,10 @@ class MyAppState extends State<MyApp>{
     });
   }
 
+  void exportFile(){
+    print("Export feature to be implemented");
+  }
+
   void changeExportFileType(String? value){
     setState(() {
       fileType = value!;
@@ -80,7 +84,7 @@ class MyAppState extends State<MyApp>{
 
   @override
   Widget build(BuildContext context) {
-    // Variables declared here are redefined each time build runs
+    // Variables declared here need to be redefined upon each re-render
     
     List<int> data = []; // For passing into DrowsinessGraph
     List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
@@ -136,7 +140,7 @@ class MyAppState extends State<MyApp>{
           ]
         ),
         // probably should refactor drawer lol
-        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, selectFileType: selectFileType, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
+        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, selectFileType: selectFileType, exportFile: exportFile, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
