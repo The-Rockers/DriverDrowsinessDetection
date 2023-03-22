@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'dart:math';
 
 import 'navigation_row.dart';
@@ -25,6 +26,10 @@ class MyAppState extends State<MyApp>{
 
   List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
   String fileType = 'PDF'; // Needs default value to avoid crashing
+
+  Future<http.Response> fetchAlbum() {
+    return http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+  }
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
@@ -130,10 +135,12 @@ class MyAppState extends State<MyApp>{
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        //primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.cyan,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('ADDDS Dashboard'),
           actions: <Widget>[

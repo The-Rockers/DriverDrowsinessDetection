@@ -47,7 +47,7 @@ class StandardLineChart extends StatelessWidget {
                 dotData: FlDotData(
                   show: true,
                 ),
-                colors: [Colors.blue]
+                colors: [Colors.cyan]
               ),
           ],
           borderData: FlBorderData(
