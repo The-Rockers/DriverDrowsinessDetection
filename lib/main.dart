@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'dart:math';
+import 'dart:async';
+import 'dart:convert';
 
 import 'navigation_row.dart';
 import 'drowsiness_data.dart';
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
+import 'data_response.dart'; // Importing file for HTTP response
 
 void main() {
   runApp(MyApp());
@@ -27,8 +31,17 @@ class MyAppState extends State<MyApp>{
   List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
   String fileType = 'PDF'; // Needs default value to avoid crashing
 
-  Future<http.Response> fetchAlbum() {
-    return http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+  late Future<DataResponse> httpResponse;
+
+  Future<DataResponse> httpDataRequest() async {
+    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+    
+    if (response.statusCode == 200){
+      return DataResponse.fromJson(jsonDecode(response.body)); 
+    }
+    else{
+      throw Exception("HTTP request failed");
+    }
   }
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
@@ -88,9 +101,15 @@ class MyAppState extends State<MyApp>{
   }
 
   @override
+  void initState(){
+    super.initState();
+    httpResponse = httpDataRequest();
+    //print("The http response was: " + httpResponse.toString());
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Variables declared here need to be redefined upon each re-render
-    
     List<int> data = []; // For passing into DrowsinessGraph
     List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
     Map<int, DateTime> weeks = {}; // For collective DateTime objects for processing and indexing
@@ -162,6 +181,22 @@ class MyAppState extends State<MyApp>{
                 ),
                 const SizedBox(height: 16),
                 NavigationRow(decrementWeekIndex, incrementWeekIndex),
+                /*
+                // testing http request future builder
+                FutureBuilder<DataResponse>(
+                  future: httpResponse,
+                  builder: (context, snapshot){
+                    if (snapshot.hasData) {
+                      print(snapshot.data!.id);
+                      print(snapshot.data!.title);
+                      print(snapshot.data!.userId);
+                      //return Text(snapshot.data!.title);
+                    } else if (snapshot.hasError) {
+                      //return Text('${snapshot.error}');
+                    }
+                    //return const CircularProgressIndicator();
+                  },
+                ), */
               ],// End of child list
             ),
       ),
