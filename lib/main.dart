@@ -39,16 +39,34 @@ class MyAppState extends State<MyApp>{
   late StreamSubscription<DiscoveredDevice> _scanStream;
   late QualifiedCharacteristic _rxCharacteristic;
 // These are the UUIDs of your device
-  //final Uuid serviceUuid = Uuid.parse("75C276C3-8F97-20BC-A143-B354244886D4"); // Sample Uuid
-  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my nuraphone
+
+  /*
+  final Uuid serviceUuid = Uuid.parse("75C276C3-8F97-20BC-A143-B354244886D4"); // Sample Uuid
   final Uuid characteristicUuid = Uuid.parse("6ACF4F08-CC9D-D495-6B41-AA7E60C4E8A6");
+  */
+
+  /*
+
+  A certain number of characteristic UUIDs as provided by:
+  https://asteroidos.org/wiki/ble-profiles/#:~:text=many%20other%20devices.-,Battery%20Service%20(UUID%3A%200000180F%2D0000,%2D1000%2D8000%2D00805f9b34fb)&text=This%20characteristic%20can%20be%20read,representing%20the%20current%20battery%20level.
+
+  Volume: 00007006-0000-0000-0000-00A57E401D05
+  battery level: 00002a19-0000-1000-8000-00805f9b34fb
+
+  */
+
+  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my nuraphone. Change for pi
+  final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
   
   String text = "No devices discovered yet";
   String text1 = "No device connected yet";
+  String text2 = "No command sent yet";
 
- // State bluetooth scan for avaialble devices. Bluetooth + location needs to be on
-  void _startScan() async {
-// Platform permissions handling stuff
+ /*
+  Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
+ */
+  void _startScan() async { // Works
+    // Platform permissions handling stuff
     bool permGranted = false;
     setState(() {
       _scanStarted = true;
@@ -56,18 +74,20 @@ class MyAppState extends State<MyApp>{
     PermissionStatus permission;
     if (Platform.isAndroid) {
       
-      // For some reason, bluetooth scanning won't work unless location
-      // is on and paermissions are granted. No idea why.
+      /*
+      For some reason, bluetooth scanning won't work unless location
+      is on and paermissions are granted. No idea why.
+      */
 
       permission = await LocationPermissions().requestPermissions();
       if (permission == PermissionStatus.granted) permGranted = true;
     } else if (Platform.isIOS) {
       permGranted = true;
     }
-// Main scanning logic happens here ⤵️
+    // Main scanning logic happens here ⤵️
     if (permGranted) {
       _scanStream = flutterReactiveBle
-          .scanForDevices(withServices: []).listen((device) {
+          .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
             print("------------ Scanning for devices ------------------");
 
@@ -78,6 +98,7 @@ class MyAppState extends State<MyApp>{
 
               print("Device: " + device.name);
               print("Device ID: " + device.id);
+
               for(var id in device.serviceUuids){
                 print("Device UUIDs: " + id.toString());
               }
@@ -86,7 +107,7 @@ class MyAppState extends State<MyApp>{
                 text = "Nuraphone Found";
               });
             }
-      });
+          }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
   }
 
@@ -95,10 +116,10 @@ class MyAppState extends State<MyApp>{
     _scanStream.cancel();
     // Let's listen to our connection so we can make updates on a state change
     Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle
-        .connectToAdvertisingDevice(
+        .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
             id: _bluetoothDevice.id,
             prescanDuration: const Duration(seconds: 5),
-            withServices: [serviceUuid],
+            withServices: [serviceUuid], // hardcoded to nuraphone
           );
     _currentConnectionStream.listen((event) {
       switch (event.connectionState) {
@@ -107,7 +128,7 @@ class MyAppState extends State<MyApp>{
           {
             _rxCharacteristic = QualifiedCharacteristic(
                 serviceId: serviceUuid,
-                characteristicId: characteristicUuid, // placeholder. This value is not requried I think
+                characteristicId: characteristicUuid, // placeholder.
                 deviceId: event.deviceId);
             setState(() {
               text1 = "Connected to nuraphone";
@@ -127,6 +148,36 @@ class MyAppState extends State<MyApp>{
         default:
       }
     });
+  }
+
+  
+  void _testRead() async{
+    final response = await flutterReactiveBle.readCharacteristic(_rxCharacteristic);
+
+    for(var i = 0; i < response.length; i++){
+      print("Response item:" + i.toString() + " " + response[i].toString());
+    }
+
+
+    setState((){
+      text2 = "Read command sent";
+    });
+  }
+  
+
+  void _testWrite(){
+    if (_connected) {
+
+      flutterReactiveBle
+      .writeCharacteristicWithResponse(_rxCharacteristic, value: [
+        123,
+      ]);
+
+      setState(() {
+        text2 = "Command sent";
+      });
+
+    }
   }
 
   @override
@@ -153,6 +204,13 @@ class MyAppState extends State<MyApp>{
                 child: Text("Connect to nuraphone"),
               ),
               Text(text1),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: null,
+                onPressed: _testRead,
+                child: Text("Read Characteristic"),
+              ),
+              Text(text2),
             ],
           ),
        )
