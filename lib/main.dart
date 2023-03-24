@@ -83,9 +83,9 @@ class MyAppState extends State<MyApp>{
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
             print("------------ Scanning for devices ------------------");
-
+            // change this TODO
             // change device name to device that will be seen on the Pi
-            if(device.name == "nuraphone 926"){
+            if(device.name == "nuraphone 926"){ // if they're my nuraphones
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
 
@@ -99,6 +99,18 @@ class MyAppState extends State<MyApp>{
               setState(() {
                 text = "Nuraphone service Found";
               });
+            }
+            else{
+
+              print("Device Name: " + device.name);
+              print("Device ID: " + device.id);
+              for(var id in device.serviceUuids){
+                print("Service UUIDs: " + id.toString());
+              }
+              setState(() {
+                text = "A device has been discovered. Check terminal for details";
+              });
+
             }
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
