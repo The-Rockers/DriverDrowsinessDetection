@@ -50,7 +50,7 @@ class MyAppState extends State<MyApp>{
   late QualifiedCharacteristic _rxCharacteristic;
   late QualifiedCharacteristic _rxCharacteristic1;
 
-  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my nuraphone. Change for pi
+  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my battery service on my nuraphone. Change for pi
   final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
   
   String text = "No devices discovered yet";
@@ -93,11 +93,11 @@ class MyAppState extends State<MyApp>{
               print("Device ID: " + device.id);
 
               for(var id in device.serviceUuids){
-                print("Device UUIDs: " + id.toString());
+                print("Service UUIDs: " + id.toString());
               }
 
               setState(() {
-                text = "Nuraphone Found";
+                text = "Nuraphone service Found";
               });
             }
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
@@ -112,7 +112,7 @@ class MyAppState extends State<MyApp>{
         .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
             id: _bluetoothDevice.id,
             prescanDuration: const Duration(seconds: 5),
-            withServices: [serviceUuid], // hardcoded to nuraphone
+            withServices: [serviceUuid], // hardcoded to nuraphone service
           );
     _currentConnectionStream.listen((event) {
       switch (event.connectionState) {
@@ -120,7 +120,7 @@ class MyAppState extends State<MyApp>{
         case DeviceConnectionState.connected:
           {
             _rxCharacteristic = QualifiedCharacteristic(
-                serviceId: serviceUuid,
+                serviceId: serviceUuid, // battery service
                 characteristicId: characteristicUuid, // Battery level
                 deviceId: event.deviceId);
             setState(() {
