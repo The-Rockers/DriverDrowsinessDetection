@@ -9,6 +9,16 @@ I/flutter (18362): Device UUIDs: 0000180f-0000-1000-8000-00805f9b34fb
 
 */
 
+/*
+
+A certain number of characteristic UUIDs as provided by:
+https://asteroidos.org/wiki/ble-profiles/#:~:text=many%20other%20devices.-,Battery%20Service%20(UUID%3A%200000180F%2D0000,%2D1000%2D8000%2D00805f9b34fb)&text=This%20characteristic%20can%20be%20read,representing%20the%20current%20battery%20level.
+
+Volume: 00007006-0000-0000-0000-00A57E401D05
+battery level: 00002a19-0000-1000-8000-00805f9b34fb
+
+*/
+
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -38,22 +48,7 @@ class MyAppState extends State<MyApp>{
   final flutterReactiveBle = FlutterReactiveBle();
   late StreamSubscription<DiscoveredDevice> _scanStream;
   late QualifiedCharacteristic _rxCharacteristic;
-// These are the UUIDs of your device
-
-  /*
-  final Uuid serviceUuid = Uuid.parse("75C276C3-8F97-20BC-A143-B354244886D4"); // Sample Uuid
-  final Uuid characteristicUuid = Uuid.parse("6ACF4F08-CC9D-D495-6B41-AA7E60C4E8A6");
-  */
-
-  /*
-
-  A certain number of characteristic UUIDs as provided by:
-  https://asteroidos.org/wiki/ble-profiles/#:~:text=many%20other%20devices.-,Battery%20Service%20(UUID%3A%200000180F%2D0000,%2D1000%2D8000%2D00805f9b34fb)&text=This%20characteristic%20can%20be%20read,representing%20the%20current%20battery%20level.
-
-  Volume: 00007006-0000-0000-0000-00A57E401D05
-  battery level: 00002a19-0000-1000-8000-00805f9b34fb
-
-  */
+  late QualifiedCharacteristic _rxCharacteristic1;
 
   final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my nuraphone. Change for pi
   final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
@@ -62,9 +57,7 @@ class MyAppState extends State<MyApp>{
   String text1 = "No device connected yet";
   String text2 = "No command sent yet";
 
- /*
-  Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
- */
+  //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async { // Works
     // Platform permissions handling stuff
     bool permGranted = false;
@@ -128,10 +121,10 @@ class MyAppState extends State<MyApp>{
           {
             _rxCharacteristic = QualifiedCharacteristic(
                 serviceId: serviceUuid,
-                characteristicId: characteristicUuid, // placeholder.
+                characteristicId: characteristicUuid, // Battery level
                 deviceId: event.deviceId);
             setState(() {
-              text1 = "Connected to nuraphone";
+              text1 = "Connected to Device";
               _foundDeviceWaitingToConnect = false;
               _connected = true;
             });
@@ -141,7 +134,7 @@ class MyAppState extends State<MyApp>{
         case DeviceConnectionState.disconnected:
           {
             setState(() {
-              text1 = "Not connected to nuraphone";
+              text1 = "Not connected to Device";
             });
             break;
           }
@@ -150,14 +143,12 @@ class MyAppState extends State<MyApp>{
     });
   }
 
-  
   void _testRead() async{
     final response = await flutterReactiveBle.readCharacteristic(_rxCharacteristic);
 
     for(var i = 0; i < response.length; i++){
-      print("Response item:" + i.toString() + " " + response[i].toString());
+      print("Battery level:" + response[i].toString());
     }
-
 
     setState((){
       text2 = "Read command sent";
