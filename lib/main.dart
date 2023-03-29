@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'dart:math';
+import 'dart:async';
+import 'dart:convert';
+
 import 'navigation_row.dart';
 import 'drowsiness_data.dart';
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
+import 'data_response.dart'; // Importing file for HTTP response
 
 void main() {
   runApp(MyApp());
@@ -16,8 +22,27 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp>{
+  // Variables defined here are more long lasting
   int currentWeekIndex = 0;
   int currentWeekRange = 1;
+
+  bool isBarChart = true;
+
+  List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
+  String fileType = 'PDF'; // Needs default value to avoid crashing
+
+  late Future<DataResponse> httpResponse;
+
+  Future<DataResponse> httpDataRequest() async {
+    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+    
+    if (response.statusCode == 200){
+      return DataResponse.fromJson(jsonDecode(response.body)); 
+    }
+    else{
+      throw Exception("HTTP request failed");
+    }
+  }
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
@@ -51,46 +76,127 @@ class MyAppState extends State<MyApp>{
     });
   }
 
+  void alternateChartType(){
+    setState((){
+      isBarChart = !isBarChart;
+    });
+  }
+
+  void exportFile(){
+    print("Selected: ${fileType}");
+  }
+
+  void changeExportFileType(String? value){
+    setState(() {
+      fileType = value!;
+    });
+  }
+
+  void Function(String?)? selectFileType(){
+
+    return(
+      changeExportFileType
+    );
+
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    httpResponse = httpDataRequest();
+    //print("The http response was: " + httpResponse.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<int> data = [];
+    // Variables declared here need to be redefined upon each re-render
+    List<int> data = []; // For passing into DrowsinessGraph
+    List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
+    Map<int, DateTime> weeks = {}; // For collective DateTime objects for processing and indexing
+    String weekText = ""; // For displaying text showing the range of weeks under graph
 
     for(var week = currentWeekIndex; week < (currentWeekIndex + currentWeekRange); week++){ // for the number of weeks
-      for(var day = 0; day < 7; day++){ // for each day in the week
+
+      int key = week % mockData.length;
+      weeks[key] = mockData[key].weekStart; //Key used index for mockData
+
+      for(int day = 0; day < 7; day++){ // for each day in the week   
+
+        DateTime nextDate = (mockData[(week % mockData.length)].weekStart).add( Duration(days: day));
+        String monthText = (nextDate.month.toString());
+        String dayText = (nextDate.day.toString());
+
+        daysText.add('${monthText}/${dayText}');
         data.add(mockData[(week % mockData.length)].drowsiness[day]);
+
       }
+
     }
 
-    final weekStart = mockData[currentWeekIndex].weekStart;
+    int lowestWeekIndex = (weeks.keys).reduce(min);
+    int highestWeekIndex = (weeks.keys).reduce(max);
+
+    // Write the range of weeks displayed under graph
+    if(currentWeekRange == 1){
+      weekText = 'Week of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
+    }
+    else{
+      for(var i = 0; i < 2; i++){
+        if(i == 0){ // From lowest week
+          weekText = 'Weeks of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
+        }
+        else{ // To highest week
+          weekText  += ' - ${weeks[highestWeekIndex]?.month}/${weeks[highestWeekIndex]?.day}/${weeks[highestWeekIndex]?.year}';
+        }
+      }
+    }
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        //primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.cyan,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //home: DrowsinessGraph(),
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('ADDDS Dashboard'),
           actions: <Widget>[
           ]
         ),
-        drawer: SettingsDrawer(modifyCurrentWeekRange, currentWeekRange),
+        // probably should refactor drawer lol
+        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, selectFileType: selectFileType, exportFile: exportFile, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              //crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                DrowsinessGraph(data:data),
+                DrowsinessGraph(data:data, days:daysText, isBarChart: isBarChart), // Must make state later
                 const SizedBox(height: 16),
                 Text(
-                  'Week of ${weekStart.day}/${weekStart.month}/${weekStart.year}',
+                  '${weekText}',
                   style: const TextStyle(fontSize: 24),
                 ),
                 const SizedBox(height: 16),
                 NavigationRow(decrementWeekIndex, incrementWeekIndex),
+                /*
+                // testing http request future builder
+                FutureBuilder<DataResponse>(
+                  future: httpResponse,
+                  builder: (context, snapshot){
+                    if (snapshot.hasData) {
+                      print(snapshot.data!.id);
+                      print(snapshot.data!.title);
+                      print(snapshot.data!.userId);
+                      //return Text(snapshot.data!.title);
+                    } else if (snapshot.hasError) {
+                      //return Text('${snapshot.error}');
+                    }
+                    //return const CircularProgressIndicator();
+                  },
+                ), */
               ],// End of child list
             ),
       ),

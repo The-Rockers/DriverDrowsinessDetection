@@ -1,3 +1,13 @@
-2023/03/17-18:16:28.335 830 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.65fb5953\flutter_tools_chrome_device.750faa78\Default\Session Storage/MANIFEST-000001
-2023/03/17-18:16:28.339 830 Recovering log #3
-2023/03/17-18:16:28.341 830 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.65fb5953\flutter_tools_chrome_device.750faa78\Default\Session Storage/000003.log 
+2023/03/29-14:44:40.321 22d8 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Session Storage/MANIFEST-000001
+2023/03/29-14:44:40.331 22d8 Recovering log #3
+2023/03/29-14:44:40.331 22d8 Level-0 table #3: started
+2023/03/29-14:44:40.363 22d8 Level-0 table #3: 247 bytes OK
+2023/03/29-14:44:40.366 22d8 Recovering log #4
+2023/03/29-14:44:40.368 22d8 Level-0 table #4: started
+2023/03/29-14:44:40.388 22d8 Level-0 table #4: 16586 bytes OK
+2023/03/29-14:44:40.389 22d8 Recovering log #8
+2023/03/29-14:44:40.397 22d8 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Session Storage/000008.log 
+2023/03/29-14:44:40.400 22d8 Delete type=0 #3
+2023/03/29-14:44:40.400 22d8 Delete type=0 #4
+2023/03/29-14:44:40.400 22d8 Delete type=2 #5
+2023/03/29-14:44:40.400 22d8 Delete type=2 #7

@@ -1,4 +1,22 @@
-2023/03/17-18:16:28.260 830 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.65fb5953\flutter_tools_chrome_device.750faa78\Default\Local Storage\leveldb/MANIFEST-000001
-2023/03/17-18:16:28.264 830 Recovering log #4
-2023/03/17-18:16:28.266 830 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.65fb5953\flutter_tools_chrome_device.750faa78\Default\Local Storage\leveldb/000004.log 
-2023/03/17-18:16:28.269 830 Delete type=0 #3
+2023/03/29-14:44:40.232 2090 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Local Storage\leveldb/MANIFEST-000001
+2023/03/29-14:44:40.235 2090 Recovering log #3
+2023/03/29-14:44:40.240 2090 Recovering log #4
+2023/03/29-14:44:40.240 2090 Level-0 table #4: started
+2023/03/29-14:44:40.244 2090 Level-0 table #4: 7802 bytes OK
+2023/03/29-14:44:40.245 2090 Recovering log #13
+2023/03/29-14:44:40.245 2090 Level-0 table #5: started
+2023/03/29-14:44:40.254 2090 Level-0 table #5: 31094 bytes OK
+2023/03/29-14:44:40.254 2090 Recovering log #23
+2023/03/29-14:44:40.255 2090 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Local Storage\leveldb/000023.log 
+2023/03/29-14:44:40.266 2090 Delete type=0 #3
+2023/03/29-14:44:40.266 2090 Delete type=0 #4
+2023/03/29-14:44:40.266 2090 Delete type=2 #6
+2023/03/29-14:44:40.266 2090 Delete type=2 #8
+2023/03/29-14:44:40.266 2090 Delete type=2 #10
+2023/03/29-14:44:40.266 2090 Delete type=2 #12
+2023/03/29-14:44:40.266 2090 Delete type=0 #13
+2023/03/29-14:44:40.266 2090 Delete type=2 #14
+2023/03/29-14:44:40.266 2090 Delete type=2 #18
+2023/03/29-14:44:40.266 2090 Delete type=2 #20
+2023/03/29-14:44:40.266 2090 Delete type=2 #22
+2023/03/29-14:44:40.266 2090 Delete type=2 #24
