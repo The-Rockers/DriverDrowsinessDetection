@@ -1,11 +1,37 @@
-2023/03/22-21:18:25.467 4eec Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.19d7024\flutter_tools_chrome_device.de89987a\Default\Site Characteristics Database/MANIFEST-000001
-2023/03/22-21:18:25.467 4eec Recovering log #19
-2023/03/22-21:18:25.467 4eec Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.19d7024\flutter_tools_chrome_device.de89987a\Default\Site Characteristics Database/000019.log 
-2023/03/22-21:18:25.468 4eec Delete type=0 #3
-2023/03/22-21:18:25.468 4eec Delete type=2 #4
-2023/03/22-21:18:25.468 4eec Delete type=2 #6
-2023/03/22-21:18:25.468 4eec Delete type=0 #6
-2023/03/22-21:18:25.468 4eec Delete type=0 #10
-2023/03/22-21:18:25.468 4eec Delete type=2 #11
-2023/03/22-21:18:25.468 4eec Delete type=2 #13
-2023/03/22-21:18:25.468 4eec Delete type=2 #14
+2023/03/29-14:44:40.039 31f0 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Site Characteristics Database/MANIFEST-000001
+2023/03/29-14:44:40.041 31f0 Recovering log #3
+2023/03/29-14:44:40.041 31f0 Level-0 table #33: started
+2023/03/29-14:44:40.049 31f0 Level-0 table #33: 288 bytes OK
+2023/03/29-14:44:40.049 31f0 Recovering log #6
+2023/03/29-14:44:40.049 31f0 Level-0 table #34: started
+2023/03/29-14:44:40.066 31f0 Level-0 table #34: 196 bytes OK
+2023/03/29-14:44:40.067 31f0 Recovering log #10
+2023/03/29-14:44:40.067 31f0 Level-0 table #35: started
+2023/03/29-14:44:40.069 31f0 Level-0 table #35: 211 bytes OK
+2023/03/29-14:44:40.070 31f0 Recovering log #19
+2023/03/29-14:44:40.070 31f0 Level-0 table #36: started
+2023/03/29-14:44:40.084 31f0 Level-0 table #36: 1260 bytes OK
+2023/03/29-14:44:40.084 31f0 Recovering log #30
+2023/03/29-14:44:40.085 31f0 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.8a8af937\flutter_tools_chrome_device.1897d88e\Default\Site Characteristics Database/000030.log 
+2023/03/29-14:44:40.087 31f0 Delete type=0 #3
+2023/03/29-14:44:40.087 31f0 Delete type=2 #4
+2023/03/29-14:44:40.087 31f0 Delete type=2 #6
+2023/03/29-14:44:40.087 31f0 Delete type=0 #6
+2023/03/29-14:44:40.087 31f0 Delete type=0 #10
+2023/03/29-14:44:40.087 31f0 Delete type=2 #11
+2023/03/29-14:44:40.087 31f0 Delete type=2 #13
+2023/03/29-14:44:40.087 31f0 Delete type=2 #14
+2023/03/29-14:44:40.087 31f0 Delete type=0 #19
+2023/03/29-14:44:40.087 31f0 Delete type=2 #20
+2023/03/29-14:44:40.087 31f0 Delete type=2 #22
+2023/03/29-14:44:40.087 31f0 Delete type=2 #23
+2023/03/29-14:44:40.087 31f0 Delete type=2 #24
+2023/03/29-14:44:40.090 3be4 Compacting 4@0 + 1@1 files
+2023/03/29-14:44:40.093 3be4 Generated table #37@0: 15 keys, 999 bytes
+2023/03/29-14:44:40.094 3be4 Compacted 4@0 + 1@1 files => 999 bytes
+2023/03/29-14:44:40.094 3be4 compacted to: files[ 0 1 0 0 0 0 0 ]
+2023/03/29-14:44:40.095 3be4 Delete type=2 #31
+2023/03/29-14:44:40.095 3be4 Delete type=2 #33
+2023/03/29-14:44:40.095 3be4 Delete type=2 #34
+2023/03/29-14:44:40.096 3be4 Delete type=2 #35
+2023/03/29-14:44:40.096 3be4 Delete type=2 #36
