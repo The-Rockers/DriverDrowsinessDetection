@@ -56,6 +56,24 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "firebase_core",
+      "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_core-2.8.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
+      "name": "firebase_core_platform_interface",
+      "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_core_platform_interface-4.5.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
+      "name": "firebase_core_web",
+      "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_core_web-2.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "fl_chart",
       "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/fl_chart-0.36.4",
       "packageUri": "lib/",
@@ -76,6 +94,12 @@
     {
       "name": "flutter_test",
       "rootUri": "file:///C:/Personal%20Use/Programming/CIS4951/flutter/packages/flutter_test",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "flutter_web_plugins",
+      "rootUri": "file:///C:/Personal%20Use/Programming/CIS4951/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -138,6 +162,12 @@
       "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/pedantic-1.11.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "plugin_platform_interface",
+      "rootUri": "file:///C:/Users/amanx/AppData/Local/Pub/Cache/hosted/pub.dev/plugin_platform_interface-2.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "provider",
@@ -206,7 +236,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-03-29T18:38:38.514330Z",
+  "generated": "2023-03-29T23:39:36.491599Z",
   "generator": "pub",
   "generatorVersion": "2.19.4"
 }

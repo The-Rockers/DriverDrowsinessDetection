@@ -1,18 +1,17 @@
-2023/03/29-14:39:26.270 481c Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.ae4b7a90\flutter_tools_chrome_device.5e55cc0e\Default\Site Characteristics Database/MANIFEST-000001
-2023/03/29-14:39:26.271 43c4 Compacting 13@0 + 0@1 files
-2023/03/29-14:39:26.274 43c4 Generated table #31@0: 15 keys, 999 bytes
-2023/03/29-14:39:26.274 43c4 Compacted 13@0 + 0@1 files => 999 bytes
-2023/03/29-14:39:26.275 43c4 compacted to: files[ 0 1 0 0 0 0 0 ]
-2023/03/29-14:39:26.276 43c4 Delete type=2 #4
-2023/03/29-14:39:26.276 43c4 Delete type=2 #6
-2023/03/29-14:39:26.276 43c4 Delete type=2 #11
-2023/03/29-14:39:26.276 43c4 Delete type=2 #13
-2023/03/29-14:39:26.276 43c4 Delete type=2 #14
-2023/03/29-14:39:26.276 43c4 Delete type=2 #20
-2023/03/29-14:39:26.276 43c4 Delete type=2 #22
-2023/03/29-14:39:26.276 43c4 Delete type=2 #23
-2023/03/29-14:39:26.276 43c4 Delete type=2 #24
-2023/03/29-14:39:26.276 43c4 Delete type=2 #25
-2023/03/29-14:39:26.276 43c4 Delete type=2 #26
-2023/03/29-14:39:26.276 43c4 Delete type=2 #27
-2023/03/29-14:39:26.277 43c4 Delete type=2 #28
+2023/03/29-15:41:50.194 3864 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.f2e3dd8c\flutter_tools_chrome_device.5d051ee4\Default\Site Characteristics Database/MANIFEST-000001
+2023/03/29-15:41:50.195 3864 Recovering log #30
+2023/03/29-15:41:50.195 3864 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.f2e3dd8c\flutter_tools_chrome_device.5d051ee4\Default\Site Characteristics Database/000030.log 
+2023/03/29-15:41:50.196 3864 Delete type=0 #3
+2023/03/29-15:41:50.196 3864 Delete type=2 #4
+2023/03/29-15:41:50.196 3864 Delete type=2 #6
+2023/03/29-15:41:50.196 3864 Delete type=0 #6
+2023/03/29-15:41:50.196 3864 Delete type=0 #10
+2023/03/29-15:41:50.196 3864 Delete type=2 #11
+2023/03/29-15:41:50.196 3864 Delete type=2 #13
+2023/03/29-15:41:50.196 3864 Delete type=2 #14
+2023/03/29-15:41:50.196 3864 Delete type=0 #19
+2023/03/29-15:41:50.196 3864 Delete type=2 #20
+2023/03/29-15:41:50.196 3864 Delete type=2 #22
+2023/03/29-15:41:50.196 3864 Delete type=2 #23
+2023/03/29-15:41:50.196 3864 Delete type=2 #24
+2023/03/29-15:41:50.196 3864 Delete type=2 #31
