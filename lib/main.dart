@@ -24,7 +24,7 @@ void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    name: "antisomnus-dashboard",
+    name: "antisomnus-381222",
     options: DefaultFirebaseOptions.currentPlatform,
   );
 

@@ -1,7 +1,7 @@
 {
   "file_generated_by": "FlutterFire CLI",
   "purpose": "FirebaseAppID & ProjectID for this Firebase app in this directory",
-  "GOOGLE_APP_ID": "1:821240069279:ios:80f3144adfbecb3c95b6aa",
-  "FIREBASE_PROJECT_ID": "antisomnus-dashboard",
-  "GCM_SENDER_ID": "821240069279"
+  "GOOGLE_APP_ID": "1:43319088122:ios:36b0f7ae923cf6de45ca43",
+  "FIREBASE_PROJECT_ID": "antisomnus",
+  "GCM_SENDER_ID": "43319088122"
 }

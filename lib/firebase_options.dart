@@ -21,11 +21,20 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -44,40 +53,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB4b2lSU_foALvayNXBVg28qf-SudhjLuM',
-    appId: '1:821240069279:web:3ca30107a228fe3495b6aa',
-    messagingSenderId: '821240069279',
-    projectId: 'antisomnus-dashboard',
-    authDomain: 'antisomnus-dashboard.firebaseapp.com',
-    storageBucket: 'antisomnus-dashboard.appspot.com',
-    measurementId: 'G-RJKDQFXZJE',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAzMPVEZbWmNrkJS_2wkpWjcjWPIFZs9zQ',
-    appId: '1:821240069279:android:59a4015a003d13ec95b6aa',
-    messagingSenderId: '821240069279',
-    projectId: 'antisomnus-dashboard',
-    storageBucket: 'antisomnus-dashboard.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyApFlM5jVl85EgQ3d2r_Y63CUGucVMhEPU',
-    appId: '1:821240069279:ios:80f3144adfbecb3c95b6aa',
-    messagingSenderId: '821240069279',
-    projectId: 'antisomnus-dashboard',
-    storageBucket: 'antisomnus-dashboard.appspot.com',
-    iosClientId: '821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com',
-    iosBundleId: 'com.example.adddFrontend',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyApFlM5jVl85EgQ3d2r_Y63CUGucVMhEPU',
-    appId: '1:821240069279:ios:80f3144adfbecb3c95b6aa',
-    messagingSenderId: '821240069279',
-    projectId: 'antisomnus-dashboard',
-    storageBucket: 'antisomnus-dashboard.appspot.com',
-    iosClientId: '821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com',
-    iosBundleId: 'com.example.adddFrontend',
+    apiKey: 'AIzaSyBVpfpTm1yTeLycAfUA1uem4PKEQVgUK7o',
+    appId: '1:914520215482:web:71545a278a0a09acdc5783',
+    messagingSenderId: '914520215482',
+    projectId: 'antisomnus-381222',
+    authDomain: 'antisomnus-381222.firebaseapp.com',
+    storageBucket: 'antisomnus-381222.appspot.com',
   );
 }

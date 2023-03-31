@@ -1,37 +1,73 @@
 {
   "project_info": {
-    "project_number": "821240069279",
-    "project_id": "antisomnus-dashboard",
-    "storage_bucket": "antisomnus-dashboard.appspot.com"
+    "project_number": "43319088122",
+    "project_id": "antisomnus",
+    "storage_bucket": "antisomnus.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:821240069279:android:59a4015a003d13ec95b6aa",
+        "mobilesdk_app_id": "1:43319088122:android:474fd6cff63771cb45ca43",
         "android_client_info": {
           "package_name": "com.example.addd_frontend"
         }
       },
       "oauth_client": [
         {
-          "client_id": "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com",
+          "client_id": "43319088122-e8m6g0rjtkc73fqids1ljfj9mllgrfa0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAzMPVEZbWmNrkJS_2wkpWjcjWPIFZs9zQ"
+          "current_key": "AIzaSyCSFtjtg3QUmv3RCQaQMO3SSPn_cM_JnLY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com",
+              "client_id": "43319088122-e8m6g0rjtkc73fqids1ljfj9mllgrfa0.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com",
+              "client_id": "43319088122-nr52bc7hqf7bb75v8pq60k6a0hbfo44r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.adddFrontend"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43319088122:android:4ccbc985b21fbe7f45ca43",
+        "android_client_info": {
+          "package_name": "com.example.antisomnus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43319088122-e8m6g0rjtkc73fqids1ljfj9mllgrfa0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSFtjtg3QUmv3RCQaQMO3SSPn_cM_JnLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43319088122-e8m6g0rjtkc73fqids1ljfj9mllgrfa0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43319088122-nr52bc7hqf7bb75v8pq60k6a0hbfo44r.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.adddFrontend"
