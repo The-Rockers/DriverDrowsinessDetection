@@ -37,7 +37,13 @@ class SettingsDrawer extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.account_circle_rounded),
               title: Text("Log in"),
-              onTap: signInWithGoogle,
+              onTap: (){
+                Future<UserCredential> googleUser = signInWithGoogle();
+                googleUser.then((user){
+                  print("GoogleUser--------------------");
+                  print(user);
+                });
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle_rounded),

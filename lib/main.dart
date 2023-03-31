@@ -49,8 +49,8 @@ class MyAppState extends State<MyApp>{
 
   late Future<DataResponse> httpResponse;
 
-  FirebaseAuth auth = FirebaseAuth.instance;
-  late UserCredential user;
+  // Variables for google sign in
+  //FirebaseAuth auth = FirebaseAuth.instance;
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
@@ -119,9 +119,12 @@ class MyAppState extends State<MyApp>{
     }
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-  // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(clientId: GoogleClientId.clientID).signIn();
+   Future<UserCredential> signInWithGoogle() async {
+      // Trigger the authentication flow
+
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
+
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
@@ -133,25 +136,17 @@ class MyAppState extends State<MyApp>{
     );
 
     // Once signed in, return the UserCredential
-    UserCredential user = await FirebaseAuth.instance.signInWithCredential(credential);
-    print("---------------- user ------------------");
-    print(user);
-    print("---------------- user ------------------");
-    return user;
-
+    return await FirebaseAuth.instance.signInWithCredential(credential);   
   }
 
   @override
   void initState() {
-
     super.initState();
-
-    httpResponse = httpDataRequest();
-
   }
 
   @override
   Widget build(BuildContext context) {
+
     // Variables declared here need to be redefined upon each re-render
     List<int> data = []; // For passing into DrowsinessGraph
     List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
