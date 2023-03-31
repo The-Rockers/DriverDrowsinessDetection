@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "821240069279",
+    "project_id": "antisomnus-dashboard",
+    "storage_bucket": "antisomnus-dashboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:821240069279:android:59a4015a003d13ec95b6aa",
+        "android_client_info": {
+          "package_name": "com.example.addd_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzMPVEZbWmNrkJS_2wkpWjcjWPIFZs9zQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.adddFrontend"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

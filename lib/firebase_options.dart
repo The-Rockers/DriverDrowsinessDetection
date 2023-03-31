@@ -21,20 +21,11 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -60,5 +51,33 @@ class DefaultFirebaseOptions {
     authDomain: 'antisomnus-dashboard.firebaseapp.com',
     storageBucket: 'antisomnus-dashboard.appspot.com',
     measurementId: 'G-RJKDQFXZJE',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyAzMPVEZbWmNrkJS_2wkpWjcjWPIFZs9zQ',
+    appId: '1:821240069279:android:59a4015a003d13ec95b6aa',
+    messagingSenderId: '821240069279',
+    projectId: 'antisomnus-dashboard',
+    storageBucket: 'antisomnus-dashboard.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyApFlM5jVl85EgQ3d2r_Y63CUGucVMhEPU',
+    appId: '1:821240069279:ios:80f3144adfbecb3c95b6aa',
+    messagingSenderId: '821240069279',
+    projectId: 'antisomnus-dashboard',
+    storageBucket: 'antisomnus-dashboard.appspot.com',
+    iosClientId: '821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com',
+    iosBundleId: 'com.example.adddFrontend',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyApFlM5jVl85EgQ3d2r_Y63CUGucVMhEPU',
+    appId: '1:821240069279:ios:80f3144adfbecb3c95b6aa',
+    messagingSenderId: '821240069279',
+    projectId: 'antisomnus-dashboard',
+    storageBucket: 'antisomnus-dashboard.appspot.com',
+    iosClientId: '821240069279-i3maoilq9gv22pc6qsf5u5unk9gvvlte.apps.googleusercontent.com',
+    iosBundleId: 'com.example.adddFrontend',
   );
 }

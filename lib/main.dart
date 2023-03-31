@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
+import 'package:http/http.dart'; // Need 2 imports for http to work.
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'firebase_options.dart';
+
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
@@ -14,7 +19,14 @@ import 'data_response.dart'; // Importing file for HTTP response
 // minor change for testing preview URL promised by firebase
 // another minor change to commit
 
-void main() {
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    name: "antisomnus-dashboard",
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(MyApp());
 }
 
@@ -36,16 +48,8 @@ class MyAppState extends State<MyApp>{
 
   late Future<DataResponse> httpResponse;
 
-  Future<DataResponse> httpDataRequest() async {
-    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
-    
-    if (response.statusCode == 200){
-      return DataResponse.fromJson(jsonDecode(response.body)); 
-    }
-    else{
-      throw Exception("HTTP request failed");
-    }
-  }
+  FirebaseAuth auth = FirebaseAuth.instance;
+  late UserCredential user;
 
   void modifyCurrentWeekRange(){ // Alternate between 1,2, and 4 week time range.
     switch(currentWeekRange){
@@ -103,11 +107,46 @@ class MyAppState extends State<MyApp>{
 
   }
 
+  Future<DataResponse> httpDataRequest() async {
+    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+    
+    if (response.statusCode == 200){
+      return DataResponse.fromJson(jsonDecode(response.body)); 
+    }
+    else{
+      throw Exception("HTTP request failed");
+    }
+  }
+
+  Future<UserCredential> signInWithGoogle() async {
+  // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn(clientId: "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com").signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    UserCredential user = await FirebaseAuth.instance.signInWithCredential(credential);
+    print("---------------- user ------------------");
+    print(user);
+    print("---------------- user ------------------");
+    return user;
+
+  }
+
   @override
-  void initState(){
+  void initState() {
+
     super.initState();
+
     httpResponse = httpDataRequest();
-    //print("The http response was: " + httpResponse.toString());
+
   }
 
   @override
@@ -169,7 +208,7 @@ class MyAppState extends State<MyApp>{
           ]
         ),
         // probably should refactor drawer lol
-        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, selectFileType: selectFileType, exportFile: exportFile, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
+        drawer: SettingsDrawer(modifyCurrentWeekRange: modifyCurrentWeekRange, alternateChartType: alternateChartType, signInWithGoogle: signInWithGoogle,  selectFileType: selectFileType, exportFile: exportFile, fileList: fileList, fileType: fileType, isBarChart: isBarChart, currentWeekRange: currentWeekRange),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
