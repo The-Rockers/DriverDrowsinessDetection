@@ -21,20 +21,11 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -59,5 +50,33 @@ class DefaultFirebaseOptions {
     projectId: 'antisomnus-381222',
     authDomain: 'antisomnus-381222.firebaseapp.com',
     storageBucket: 'antisomnus-381222.appspot.com',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDgFEFPp63uOrSGwVNvA83s6n7Q8qOoKiU',
+    appId: '1:914520215482:android:fd7255340645e903dc5783',
+    messagingSenderId: '914520215482',
+    projectId: 'antisomnus-381222',
+    storageBucket: 'antisomnus-381222.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDJy02isFS7_qB-44aduTC-bNI9GGxOsUE',
+    appId: '1:914520215482:ios:39d9b14869a4c2b1dc5783',
+    messagingSenderId: '914520215482',
+    projectId: 'antisomnus-381222',
+    storageBucket: 'antisomnus-381222.appspot.com',
+    iosClientId: '914520215482-hts3gv6e6ql15gdgihp0f87fulv5871s.apps.googleusercontent.com',
+    iosBundleId: 'com.example.adddFrontend',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDJy02isFS7_qB-44aduTC-bNI9GGxOsUE',
+    appId: '1:914520215482:ios:39d9b14869a4c2b1dc5783',
+    messagingSenderId: '914520215482',
+    projectId: 'antisomnus-381222',
+    storageBucket: 'antisomnus-381222.appspot.com',
+    iosClientId: '914520215482-hts3gv6e6ql15gdgihp0f87fulv5871s.apps.googleusercontent.com',
+    iosBundleId: 'com.example.adddFrontend',
   );
 }
