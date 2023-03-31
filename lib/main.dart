@@ -14,6 +14,7 @@ import 'navigation_row.dart';
 import 'drowsiness_data.dart';
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
+import 'google_clientId.dart';
 import 'data_response.dart'; // Importing file for HTTP response
 
 // minor change for testing preview URL promised by firebase
@@ -120,7 +121,7 @@ class MyAppState extends State<MyApp>{
 
   Future<UserCredential> signInWithGoogle() async {
   // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(clientId: "821240069279-drakotn11r2f220366ruo02vua1j2a3k.apps.googleusercontent.com").signIn();
+    final GoogleSignInAccount? googleUser = await GoogleSignIn(clientId: GoogleClientId.clientID).signIn();
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
