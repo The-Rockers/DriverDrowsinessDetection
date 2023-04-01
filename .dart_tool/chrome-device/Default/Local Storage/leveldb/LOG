@@ -1,15 +1,2 @@
-2023/03/31-17:36:19.466 1a5c Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.49f2ff6b\flutter_tools_chrome_device.843b3a87\Default\Local Storage\leveldb/MANIFEST-000001
-2023/03/31-17:36:19.477 1a5c Recovering log #23
-2023/03/31-17:36:19.481 1a5c Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.49f2ff6b\flutter_tools_chrome_device.843b3a87\Default\Local Storage\leveldb/000023.log 
-2023/03/31-17:36:19.483 1a5c Delete type=0 #3
-2023/03/31-17:36:19.484 1a5c Delete type=0 #4
-2023/03/31-17:36:19.484 1a5c Delete type=2 #6
-2023/03/31-17:36:19.484 1a5c Delete type=2 #8
-2023/03/31-17:36:19.484 1a5c Delete type=2 #10
-2023/03/31-17:36:19.484 1a5c Delete type=2 #12
-2023/03/31-17:36:19.484 1a5c Delete type=0 #13
-2023/03/31-17:36:19.484 1a5c Delete type=2 #14
-2023/03/31-17:36:19.491 1a5c Delete type=2 #18
-2023/03/31-17:36:19.491 1a5c Delete type=2 #20
-2023/03/31-17:36:19.491 1a5c Delete type=2 #22
-2023/03/31-17:36:19.491 1a5c Delete type=2 #24
+2023/03/31-20:34:11.671 23f4 Creating DB C:\Users\amanx\AppData\Local\Temp\flutter_tools.6991161f\flutter_tools_chrome_device.c2c69aa9\Default\Local Storage\leveldb since it was missing.
+2023/03/31-20:34:11.685 23f4 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.6991161f\flutter_tools_chrome_device.c2c69aa9\Default\Local Storage\leveldb/MANIFEST-000001
