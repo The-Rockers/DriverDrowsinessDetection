@@ -23,7 +23,7 @@ import 'data_response.dart'; // Importing file for HTTP response
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    name: "antisomnus-381222",
+    //name: "antisomnus-381222",
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -115,21 +115,23 @@ class MyAppState extends State<MyApp> {
 
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
-
-    GoogleSignIn googleSignIn =
-        await GoogleSignIn(clientId: GoogleClientId.clientID);
+    print("1----------------------");
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
+    print("2----------------------");
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    print("3----------------------");
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
+    print("4----------------------");
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
+    print("5----------------------");
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -138,6 +140,13 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    /*
+    final user = signInWithGoogle();
+    user.then((user){
+      print("-------------------------------");
+      print(user);
+    });
+    */
   }
 
   @override

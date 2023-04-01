@@ -1,20 +1,5 @@
-<<<<<<< HEAD
-2023/03/31-17:15:12.434 1cc8 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.cae74099\flutter_tools_chrome_device.e6d473ce\Default\Local Storage\leveldb/MANIFEST-000001
-2023/03/31-17:15:12.445 1cc8 Recovering log #23
-2023/03/31-17:15:12.467 1cc8 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.cae74099\flutter_tools_chrome_device.e6d473ce\Default\Local Storage\leveldb/000023.log 
-2023/03/31-17:15:12.485 1cc8 Delete type=0 #3
-2023/03/31-17:15:12.485 1cc8 Delete type=0 #4
-2023/03/31-17:15:12.485 1cc8 Delete type=2 #6
-2023/03/31-17:15:12.485 1cc8 Delete type=2 #8
-2023/03/31-17:15:12.485 1cc8 Delete type=2 #10
-2023/03/31-17:15:12.485 1cc8 Delete type=2 #12
-2023/03/31-17:15:12.485 1cc8 Delete type=0 #13
-2023/03/31-17:15:12.485 1cc8 Delete type=2 #14
-2023/03/31-17:15:12.561 1cc8 Delete type=2 #18
-2023/03/31-17:15:12.561 1cc8 Delete type=2 #20
-2023/03/31-17:15:12.562 1cc8 Delete type=2 #22
-2023/03/31-17:15:12.562 1cc8 Delete type=2 #24
-=======
-2023/03/31-17:29:27.647 3 Creating DB /tmp/flutter_tools.BNSATM/flutter_tools_chrome_device.XTQVTG/Default/Local Storage/leveldb since it was missing.
-2023/03/31-17:29:27.650 3 Reusing MANIFEST /tmp/flutter_tools.BNSATM/flutter_tools_chrome_device.XTQVTG/Default/Local Storage/leveldb/MANIFEST-000001
->>>>>>> 10e7ae07d7a2a45f76f63d8ea2a4f0f6576bcb96
+2023/03/31-22:36:58.190 1ad0 Reusing MANIFEST C:\Users\amanx\AppData\Local\Temp\flutter_tools.af274fb2\flutter_tools_chrome_device.a600595a\Default\Local Storage\leveldb/MANIFEST-000001
+2023/03/31-22:36:58.192 1ad0 Recovering log #25
+2023/03/31-22:36:58.193 1ad0 Reusing old log C:\Users\amanx\AppData\Local\Temp\flutter_tools.af274fb2\flutter_tools_chrome_device.a600595a\Default\Local Storage\leveldb/000025.log 
+2023/03/31-22:36:58.195 1ad0 Delete type=0 #3
+2023/03/31-22:36:58.195 1ad0 Delete type=0 #23
