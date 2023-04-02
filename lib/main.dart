@@ -12,7 +12,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'navigation_row.dart';
-import 'mock_drowsiness_data.dart'; // mock data for testing
 import 'drowsiness_data.dart'; // retrieved data form firestore
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
@@ -178,10 +177,9 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void populateDrowsinessDataList(){ // works
+  void populateDrowsinessDataList(){ // Supports different days and months but NOT years (yet)
 
     // add generated objects to userDrowsinessData
-    String id;
     Iterable<String> weeks;
     Iterable<dynamic> tempDrowsiness = [];
 
@@ -189,12 +187,14 @@ class MyAppState extends State<MyApp> {
     List<List<int>> drowsiness = [];
     userDrowsinessData = []; // clear userDrowsinessData for populating with new data
 
-    for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each doc (1 month) create 1 DrowsinessData object
+    for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each document held in firebase (1 doc = 1 month's data)
+      weekStarts = []; // reset for each month's data pulled
+      drowsiness = []; // reset for each month's data pulled
 
       List<List<String>> splitWeeks = [];
       DateTime tempWeekStart;
 
-      weeks = doc.data().keys;
+      weeks = doc.data().keys; // data for each week name (month day and year)
       tempDrowsiness = doc.data().values; // data for each week (list of maximum 7 ints)
 
       for(int i = 0; i < weeks.length; i++){ // split weeks into array of ints for creating DateTime objects
@@ -202,7 +202,7 @@ class MyAppState extends State<MyApp> {
       }
 
       for(List<String> date in splitWeeks){ // creates datetime object for each week
-        int year = int.parse("20" + date[2]);
+        int year = int.parse("20" + date[2]); // assumes year comes in form "23" for 2023
         int month = int.parse(date[0]);
         int day = int.parse(date[1]);
 
@@ -210,53 +210,48 @@ class MyAppState extends State<MyApp> {
         weekStarts.add(tempWeekStart);
       }
 
-    }
-
-    for(int i = 0; i < tempDrowsiness.length; i++){
-      //print(tempDrowsiness.elementAt(i)); // List<dynamic> lol
+      for(int i = 0; i < tempDrowsiness.length; i++){ // take values from tempDrowsiness and place into drowsiness as a list of ints
       List<int> temp = [];
       
       for(int j = 0; j < tempDrowsiness.elementAt(i).length; j++){
-        //print(tempDrowsiness.elementAt(i)[j]); // List<dynamic> lol
         temp.add(tempDrowsiness.elementAt(i)[j]);
       }
 
       drowsiness.add(temp);
-      //print("TEMPS!!! ----------- " + temp.toString());
-    }
+      }
 
-    //print("WeekStarts!!!! ---------" + weekStarts.toString());
-    //print("Drowsiness Data!!! -------------------" + drowsiness.toString());
+      print(weekStarts);
+      print(drowsiness);
 
-    if(weekStarts.length != drowsiness.length){
+      if(weekStarts.length != drowsiness.length){
       print("Weekstart and drowiness data length mismatch :(");
-    }
-    else{
-
-      List<int> weekStartDays = [];
-      List<int> sortedValues = [];
-
-      for(int i = 0; i < weekStarts.length; i++){ // order week start elements from lowest to highest week
-        weekStartDays.add(weekStarts[i].day);
       }
+      else{
 
-      weekStartDays.sort();
+        List<int> weekStartDays = [];
+        List<int> sortedDaysValues = [];
 
-      for(int i = 0; i < weekStartDays.length; i++){
-        sortedValues.add(weekStartDays[i]); // must use this to avoid sorting malfuction. CANNOT use .sort()
-      }
+        // Placing week start days values into weekStartDays and sorting 
 
-        for(int i = 0; i < sortedValues.length; i++){ // at weeks from lowest - highest value
-          //print(sortedValues[i]);
-          for(int j = 0; j < weekStarts.length; j++){
-            if(weekStarts[j].day == sortedValues[i]){
+        for(int i = 0; i < weekStarts.length; i++){ // order week start elements from lowest to highest week
+          weekStartDays.add(weekStarts[i].day);
+        }
+
+        weekStartDays.sort();
+
+        for(int i = 0; i < weekStartDays.length; i++){ // must use this to avoid sorting malfuction.
+          sortedDaysValues.add(weekStartDays[i]); 
+        }
+
+        for(int i = 0; i < sortedDaysValues.length; i++){ // For each day must be for each day in month
+          for(int j = 0; j < weekStarts.length; j++){ // for each weekstart entry (unordered)
+            if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate month and day
               userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j]));
             }
           }
         }
-
+      }
     }
-
   }
 
   @override
