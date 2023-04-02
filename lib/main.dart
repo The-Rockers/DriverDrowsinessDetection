@@ -142,13 +142,25 @@ class MyAppState extends State<MyApp> {
 
   void getFirestoreData() async {
 
-    await fireStore.collection("users").get().then((event) {
+    /*
+    await fireStore.collection("users").where("id", isEqualTo: "100242345133661897540").get().then((event) {
       print("Printing user collection ------------------");
       for (var doc in event.docs) {
         print("${doc.id} => ${doc.data()}");
       }
       print("Printing user collection ------------------");
     });
+    */
+
+    await fireStore.collection("users")
+          .doc("100242345133661897540")
+          .collection("data")
+          .get()
+          .then((event){
+            for (var doc in event.docs) {
+              print("${doc.id} => ${doc.data()}");
+            }
+          });
 
     /*late Future<QuerySnapshot<Map<String, dynamic>>> data = fireStore.collection("users").get();
     data.then((item){
