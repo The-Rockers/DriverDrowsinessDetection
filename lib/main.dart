@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart'; // Need 2 imports for http to work.
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'firebase_options.dart';
 
@@ -45,6 +46,8 @@ class MyAppState extends State<MyApp> {
   String fileType = 'PDF'; // Needs default value to avoid crashing
 
   late Future<DataResponse> httpResponse;
+
+  final fireStore = FirebaseFirestore.instance;
 
   // Variables for google sign in
   //FirebaseAuth auth = FirebaseAuth.instance;
@@ -135,6 +138,25 @@ class MyAppState extends State<MyApp> {
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  void getFirestoreData() async {
+
+    await fireStore.collection("users").get().then((event) {
+      print("Printing user collection ------------------");
+      for (var doc in event.docs) {
+        print("${doc.id} => ${doc.data()}");
+      }
+      print("Printing user collection ------------------");
+    });
+
+    /*late Future<QuerySnapshot<Map<String, dynamic>>> data = fireStore.collection("users").get();
+    data.then((item){
+      print("printing firestore items! -------------------");
+      print(item);
+    });
+    */
+
   }
 
   @override
@@ -230,6 +252,10 @@ class MyAppState extends State<MyApp> {
             //crossAxisAlignment: CrossAxisAlignment.stretch,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              ElevatedButton(
+                onPressed: getFirestoreData,
+                child: Text("Test getting firestore data"),
+              ),
               DrowsinessGraph(
                   data: data,
                   days: daysText,
