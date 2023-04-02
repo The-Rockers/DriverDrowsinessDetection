@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart'; // Need 2 imports for http to work.
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,14 +7,12 @@ import 'firebase_options.dart';
 
 import 'dart:math';
 import 'dart:async';
-import 'dart:convert';
 
 import 'navigation_row.dart';
 import 'drowsiness_data.dart'; // retrieved data form firestore
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
 import 'google_clientId.dart';
-import 'data_response.dart'; // Importing file for HTTP response
 
 // minor change for testing preview URL promised by firebase
 // another minor change to commit
@@ -45,14 +41,12 @@ class MyAppState extends State<MyApp> {
   List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
   String fileType = 'PDF'; // Needs default value to avoid crashing
 
-  late Future<DataResponse> httpResponse; // not used atm
-
   final fireStore = FirebaseFirestore.instance;
   List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
-  List<DrowsinessData> userDrowsinessData = mockData;
+  List<DrowsinessData> userDrowsinessData = mockData; // initiaize to mock data for the time being
 
   late UserCredential globalUser;
-  String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore
+  String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore (my umich acc ID)
   late bool doesUserHaveData = true; // default to true and show mock data to user
 
   void modifyCurrentWeekRange() {
@@ -130,17 +124,13 @@ class MyAppState extends State<MyApp> {
         globalUserId = globalUser.additionalUserInfo?.profile!["id"];
       });
 
-        print("");
-        print("User credential successfully retrieved!");
-        print("");
-
         getFirestoreData();
 
     });
 
   }
 
-  void Function() selectSignInWithGoogle(){
+  void Function() selectSignInWithGoogle(){ // for passing function to settings drawer
     return (signInWithGoogle);
   }
 
@@ -265,7 +255,7 @@ class MyAppState extends State<MyApp> {
 
         for(int i = 0; i < sortedDaysValues.length; i++){ // For each sorted day
           for(int j = 0; j < weekStarts.length; j++){ // for each weekstart entry (unordered)
-            if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate and day
+            if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate day
               setState((){
                 userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j])); //refresh every time data is added
               });
@@ -304,12 +294,13 @@ class MyAppState extends State<MyApp> {
         daysText.add('${monthText}/${dayText}');
         data.add(userDrowsinessData[(week % userDrowsinessData.length)].drowsiness[day]);
       }
+
     }
 
     int lowestWeekIndex = (weeks.keys).reduce(min);
     int highestWeekIndex = (weeks.keys).reduce(max);
 
-    // Write the range of weeks displayed under graph
+    // Write the range of weeks displayed under graph or write that user has no data
     
     if(doesUserHaveData){
       if (currentWeekRange == 1) {
