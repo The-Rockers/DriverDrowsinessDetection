@@ -177,7 +177,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void populateDrowsinessDataList(){ // Supports different days and months but NOT years (yet)
+  void populateDrowsinessDataList(){ // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
 
     // add generated objects to userDrowsinessData
     Iterable<String> weeks;
@@ -188,6 +188,12 @@ class MyAppState extends State<MyApp> {
     userDrowsinessData = []; // clear userDrowsinessData for populating with new data
 
     for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each document held in firebase (1 doc = 1 month's data)
+
+      /*
+        Retrieve the data form each document in firebase (1 doc = 1 month's data)
+        and feed relevant values into weekStarts and drowsiness lists
+      */
+
       weekStarts = []; // reset for each month's data pulled
       drowsiness = []; // reset for each month's data pulled
 
@@ -202,7 +208,7 @@ class MyAppState extends State<MyApp> {
       }
 
       for(List<String> date in splitWeeks){ // creates datetime object for each week
-        int year = int.parse("20" + date[2]); // assumes year comes in form "23" for 2023
+        int year = int.parse("20" + date[2]); // assumes year comes in form "23" for 2023 for example
         int month = int.parse(date[0]);
         int day = int.parse(date[1]);
 
@@ -211,20 +217,26 @@ class MyAppState extends State<MyApp> {
       }
 
       for(int i = 0; i < tempDrowsiness.length; i++){ // take values from tempDrowsiness and place into drowsiness as a list of ints
-      List<int> temp = [];
-      
-      for(int j = 0; j < tempDrowsiness.elementAt(i).length; j++){
-        temp.add(tempDrowsiness.elementAt(i)[j]);
+        List<int> temp = [];
+        
+        for(int j = 0; j < tempDrowsiness.elementAt(i).length; j++){
+          temp.add(tempDrowsiness.elementAt(i)[j]);
+        }
+
+        drowsiness.add(temp);
       }
 
-      drowsiness.add(temp);
-      }
+      //print(weekStarts);
+      //print(drowsiness);
 
-      print(weekStarts);
-      print(drowsiness);
+      /*
+        Sort values for each day in drowsiness list,
+        generate DrowsinessData object,
+        and add it to userDrowsinessData list
+      */
 
       if(weekStarts.length != drowsiness.length){
-      print("Weekstart and drowiness data length mismatch :(");
+        print("Weekstart and drowiness data length mismatch :(");
       }
       else{
 
@@ -246,7 +258,9 @@ class MyAppState extends State<MyApp> {
         for(int i = 0; i < sortedDaysValues.length; i++){ // For each day must be for each day in month
           for(int j = 0; j < weekStarts.length; j++){ // for each weekstart entry (unordered)
             if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate month and day
-              userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j]));
+              setState((){
+                userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j]));
+              });
             }
           }
         }
