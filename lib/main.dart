@@ -51,8 +51,9 @@ class MyAppState extends State<MyApp> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
   List<DrowsinessData> userDrowsinessData = mockData;
 
-  late final UserCredential globalUser;
+  late UserCredential globalUser;
   String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore
+  late bool doesUserHaveData = true; // default to true and show mock data to user
 
   void modifyCurrentWeekRange() {
     // Alternate between 1,2, and 4 week time range.
@@ -107,17 +108,6 @@ class MyAppState extends State<MyApp> {
     return (changeExportFileType);
   }
 
-  Future<DataResponse> httpDataRequest() async {
-    final response = await http
-        .get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
-
-    if (response.statusCode == 200) {
-      return DataResponse.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception("HTTP request failed");
-    }
-  }
-
    void signInWithGoogle() async {
     // Trigger the authentication flow
     GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
@@ -156,6 +146,8 @@ class MyAppState extends State<MyApp> {
 
   void getFirestoreData() async {
 
+    fireStoreDocs = []; // clear list each time data is retrieved
+
     if(globalUserId == ""){
       print("");
       print("User id in invalid. Unable to retrieve firestore data");
@@ -178,6 +170,22 @@ class MyAppState extends State<MyApp> {
   }
 
   void populateDrowsinessDataList(){ // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
+
+    if(fireStoreDocs.length == 0){
+      print("There was no data found for this user! ---------");
+
+      setState((){
+        doesUserHaveData = false;
+      });
+
+      return;
+
+    }
+    else{
+      setState((){
+        doesUserHaveData = true;
+      });
+    }
 
     // add generated objects to userDrowsinessData
     Iterable<String> weeks;
@@ -255,11 +263,11 @@ class MyAppState extends State<MyApp> {
           sortedDaysValues.add(weekStartDays[i]); 
         }
 
-        for(int i = 0; i < sortedDaysValues.length; i++){ // For each day must be for each day in month
+        for(int i = 0; i < sortedDaysValues.length; i++){ // For each sorted day
           for(int j = 0; j < weekStarts.length; j++){ // for each weekstart entry (unordered)
-            if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate month and day
+            if((weekStarts[j].day == sortedDaysValues[i])){ // if the weekstart entry is of appropriate and day
               setState((){
-                userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j]));
+                userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j])); //refresh every time data is added
               });
             }
           }
@@ -302,21 +310,26 @@ class MyAppState extends State<MyApp> {
     int highestWeekIndex = (weeks.keys).reduce(max);
 
     // Write the range of weeks displayed under graph
-    if (currentWeekRange == 1) {
-      weekText =
-          'Week of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
-    } else {
-      for (var i = 0; i < 2; i++) {
-        if (i == 0) {
-          // From lowest week
-          weekText =
-              'Weeks of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
-        } else {
-          // To highest week
-          weekText +=
-              ' - ${weeks[highestWeekIndex]?.month}/${weeks[highestWeekIndex]?.day}/${weeks[highestWeekIndex]?.year}';
+    
+    if(doesUserHaveData){
+      if (currentWeekRange == 1) {
+      weekText = 'Week of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
+      } else {
+        for (var i = 0; i < 2; i++) {
+          if (i == 0) {
+            // From lowest week
+            weekText =
+                'Weeks of ${weeks[lowestWeekIndex]?.month}/${weeks[lowestWeekIndex]?.day}/${weeks[lowestWeekIndex]?.year}';
+          } else {
+            // To highest week
+            weekText +=
+                ' - ${weeks[highestWeekIndex]?.month}/${weeks[highestWeekIndex]?.day}/${weeks[highestWeekIndex]?.year}';
+          }
         }
       }
+    }
+    else{
+      weekText = "No data available";
     }
 
     return MaterialApp(
@@ -350,7 +363,9 @@ class MyAppState extends State<MyApp> {
               DrowsinessGraph(
                   data: data,
                   days: daysText,
-                  isBarChart: isBarChart), // Must make state later
+                  isBarChart: isBarChart,
+                  doesUserHaveData: doesUserHaveData,
+                  ), // Must make state later
               const SizedBox(height: 16),
               Text(
                 '${weekText}',
@@ -358,22 +373,6 @@ class MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 16),
               NavigationRow(decrementWeekIndex, incrementWeekIndex),
-              /*
-                // testing http request future builder
-                FutureBuilder<DataResponse>(
-                  future: httpResponse,
-                  builder: (context, snapshot){
-                    if (snapshot.hasData) {
-                      print(snapshot.data!.id);
-                      print(snapshot.data!.title);
-                      print(snapshot.data!.userId);
-                      //return Text(snapshot.data!.title);
-                    } else if (snapshot.hasError) {
-                      //return Text('${snapshot.error}');
-                    }
-                    //return const CircularProgressIndicator();
-                  },
-                ), */
             ], // End of child list
           ),
         ),
