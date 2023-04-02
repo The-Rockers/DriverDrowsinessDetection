@@ -12,7 +12,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'navigation_row.dart';
-import 'drowsiness_data.dart';
+import 'mock_drowsiness_data.dart'; // mock data for testing
+import 'drowsiness_data.dart'; // retrieved data form firestore
 import 'drowsiness_graph.dart';
 import 'settings_drawer.dart';
 import 'google_clientId.dart';
@@ -45,10 +46,14 @@ class MyAppState extends State<MyApp> {
   List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
   String fileType = 'PDF'; // Needs default value to avoid crashing
 
-  late Future<DataResponse> httpResponse;
+  late Future<DataResponse> httpResponse; // not used atm
 
   final fireStore = FirebaseFirestore.instance;
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
+  List<DrowsinessData> userDrowsinessData = mockData;
+
   late final UserCredential globalUser;
+  String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore
 
   void modifyCurrentWeekRange() {
     // Alternate between 1,2, and 4 week time range.
@@ -73,13 +78,13 @@ class MyAppState extends State<MyApp> {
 
   void decrementWeekIndex() {
     setState(() {
-      currentWeekIndex = (currentWeekIndex - 1) % mockData.length;
+      currentWeekIndex = (currentWeekIndex - 1) % userDrowsinessData.length;
     });
   }
 
   void incrementWeekIndex() {
     setState(() {
-      currentWeekIndex = (currentWeekIndex + 1) % mockData.length;
+      currentWeekIndex = (currentWeekIndex + 1) % userDrowsinessData.length;
     });
   }
 
@@ -116,7 +121,6 @@ class MyAppState extends State<MyApp> {
 
    void signInWithGoogle() async {
     // Trigger the authentication flow
-    print("-----------------------");
     GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -134,95 +138,154 @@ class MyAppState extends State<MyApp> {
 
       setState((){
         globalUser = tempUser;
+        globalUserId = globalUser.additionalUserInfo?.profile!["id"];
       });
 
-      print("Printing global user! -----------------------------");
-      print(globalUser);
+        print("");
+        print("User credential successfully retrieved!");
+        print("");
+
+        getFirestoreData();
 
     });
 
   }
 
   void Function() selectSignInWithGoogle(){
-    print("Select sign in with google tapped!!!");
     return (signInWithGoogle);
   }
 
   void getFirestoreData() async {
 
-    await fireStore.collection("users") // users collection
-          .doc("100242345133661897540") // user id with firebase auth id
-          .collection("data") // data collection
-          .get()
-          .then((event){
-            for (var doc in event.docs) {
-              print("${doc.id} => ${doc.data()}");
-            }
-          });
+    if(globalUserId == ""){
+      print("");
+      print("User id in invalid. Unable to retrieve firestore data");
+      print("");
+    }
+    else{ // user ID has been retrieved and set by signInWithGoogle()
+      await fireStore.collection("users") // users collection
+      .doc(globalUserId) // user id with firebase auth id
+      .collection("data") // data subcollection
+      .get()
+      .then((event){
+        for (var doc in event.docs) { // each document is 1 month
+          fireStoreDocs.add(doc);
+        }
+      });
+    }
 
-    /*
-    await fireStore.collection("users").where("id", isEqualTo: "100242345133661897540").get().then((event) {
-      print("Printing user collection ------------------");
-      for (var doc in event.docs) {
-        print("${doc.id} => ${doc.data()}");
+    populateDrowsinessDataList();
+
+  }
+
+  void populateDrowsinessDataList(){ // works
+
+    // add generated objects to userDrowsinessData
+    String id;
+    Iterable<String> weeks;
+    Iterable<dynamic> tempDrowsiness = [];
+
+    List<DateTime> weekStarts = [];
+    List<List<int>> drowsiness = [];
+    userDrowsinessData = []; // clear userDrowsinessData for populating with new data
+
+    for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each doc (1 month) create 1 DrowsinessData object
+
+      List<List<String>> splitWeeks = [];
+      DateTime tempWeekStart;
+
+      weeks = doc.data().keys;
+      tempDrowsiness = doc.data().values; // data for each week (list of maximum 7 ints)
+
+      for(int i = 0; i < weeks.length; i++){ // split weeks into array of ints for creating DateTime objects
+        splitWeeks.add(weeks.elementAt(i).split("-"));
       }
-      print("Printing user collection ------------------");
-    });
-    */
 
-    /*late Future<QuerySnapshot<Map<String, dynamic>>> data = fireStore.collection("users").get();
-    data.then((item){
-      print("printing firestore items! -------------------");
-      print(item);
-    });
-    */
+      for(List<String> date in splitWeeks){ // creates datetime object for each week
+        int year = int.parse("20" + date[2]);
+        int month = int.parse(date[0]);
+        int day = int.parse(date[1]);
+
+        tempWeekStart = DateTime(year, month, day);
+        weekStarts.add(tempWeekStart);
+      }
+
+    }
+
+    for(int i = 0; i < tempDrowsiness.length; i++){
+      //print(tempDrowsiness.elementAt(i)); // List<dynamic> lol
+      List<int> temp = [];
+      
+      for(int j = 0; j < tempDrowsiness.elementAt(i).length; j++){
+        //print(tempDrowsiness.elementAt(i)[j]); // List<dynamic> lol
+        temp.add(tempDrowsiness.elementAt(i)[j]);
+      }
+
+      drowsiness.add(temp);
+      //print("TEMPS!!! ----------- " + temp.toString());
+    }
+
+    //print("WeekStarts!!!! ---------" + weekStarts.toString());
+    //print("Drowsiness Data!!! -------------------" + drowsiness.toString());
+
+    if(weekStarts.length != drowsiness.length){
+      print("Weekstart and drowiness data length mismatch :(");
+    }
+    else{
+
+      List<int> weekStartDays = [];
+      List<int> sortedValues = [];
+
+      for(int i = 0; i < weekStarts.length; i++){ // order week start elements from lowest to highest week
+        weekStartDays.add(weekStarts[i].day);
+      }
+
+      weekStartDays.sort();
+
+      for(int i = 0; i < weekStartDays.length; i++){
+        sortedValues.add(weekStartDays[i]); // must use this to avoid sorting malfuction. CANNOT use .sort()
+      }
+
+        for(int i = 0; i < sortedValues.length; i++){ // at weeks from lowest - highest value
+          //print(sortedValues[i]);
+          for(int j = 0; j < weekStarts.length; j++){
+            if(weekStarts[j].day == sortedValues[i]){
+              userDrowsinessData.add(DrowsinessData(weekStart: weekStarts[j], drowsiness: drowsiness[j]));
+            }
+          }
+        }
+
+    }
 
   }
 
   @override
   void initState() {
     super.initState();
-
-    //signInWithGoogle();
-
-    /*
-    final user = signInWithGoogle();
-    user.then((user){
-      print("-------------------------------");
-      print(user);
-    });
-    */
   }
 
   @override
   Widget build(BuildContext context) {
     // Variables declared here need to be redefined upon each re-render
     List<int> data = []; // For passing into DrowsinessGraph
-    List<String> daysText =
-        []; // For writing days under each entry of graph. Passed into DrowsinessGraph
-    Map<int, DateTime> weeks =
-        {}; // For collective DateTime objects for processing and indexing
-    String weekText =
-        ""; // For displaying text showing the range of weeks under graph
+    List<String> daysText = []; // For writing days under each entry of graph. Passed into DrowsinessGraph
+    Map<int, DateTime> weeks = {}; // For collective DateTime objects for processing and indexing
+    String weekText = ""; // For displaying text showing the range of weeks under graph
 
-    for (var week = currentWeekIndex;
-        week < (currentWeekIndex + currentWeekRange);
-        week++) {
-      // for the number of weeks
+    for (var week = currentWeekIndex; week < (currentWeekIndex + currentWeekRange); week++) { // for the number of weeks
 
-      int key = week % mockData.length;
-      weeks[key] = mockData[key].weekStart; //Key used index for mockData
+      int key = week % userDrowsinessData.length;
+      weeks[key] = userDrowsinessData[key].weekStart; //Key used index for userDrowsinessData
 
-      for (int day = 0; day < 7; day++) {
-        // for each day in the week
+      for (int day = 0; day < userDrowsinessData[key].drowsiness.length; day++) {// for each day for which there is data in the week
 
-        DateTime nextDate = (mockData[(week % mockData.length)].weekStart)
+        DateTime nextDate = (userDrowsinessData[(week % userDrowsinessData.length)].weekStart)
             .add(Duration(days: day));
         String monthText = (nextDate.month.toString());
         String dayText = (nextDate.day.toString());
 
         daysText.add('${monthText}/${dayText}');
-        data.add(mockData[(week % mockData.length)].drowsiness[day]);
+        data.add(userDrowsinessData[(week % userDrowsinessData.length)].drowsiness[day]);
       }
     }
 
@@ -275,10 +338,6 @@ class MyAppState extends State<MyApp> {
             //crossAxisAlignment: CrossAxisAlignment.stretch,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: getFirestoreData,
-                child: Text("Test getting firestore data"),
-              ),
               DrowsinessGraph(
                   data: data,
                   days: daysText,
