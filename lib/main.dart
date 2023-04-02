@@ -48,9 +48,7 @@ class MyAppState extends State<MyApp> {
   late Future<DataResponse> httpResponse;
 
   final fireStore = FirebaseFirestore.instance;
-
-  // Variables for google sign in
-  //FirebaseAuth auth = FirebaseAuth.instance;
+  late final UserCredential globalUser;
 
   void modifyCurrentWeekRange() {
     // Alternate between 1,2, and 4 week time range.
@@ -116,31 +114,51 @@ class MyAppState extends State<MyApp> {
     }
   }
 
-  Future<UserCredential> signInWithGoogle() async {
+   void signInWithGoogle() async {
     // Trigger the authentication flow
-    print("1----------------------");
+    print("-----------------------");
     GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
-    print("2----------------------");
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    print("3----------------------");
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-    print("4----------------------");
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-    print("5----------------------");
 
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
+
+      setState((){
+        globalUser = tempUser;
+      });
+
+      print("Printing global user! -----------------------------");
+      print(globalUser);
+
+    });
+
+  }
+
+  void Function() selectSignInWithGoogle(){
+    print("Select sign in with google tapped!!!");
+    return (signInWithGoogle);
   }
 
   void getFirestoreData() async {
+
+    await fireStore.collection("users") // users collection
+          .doc("100242345133661897540") // user id with firebase auth id
+          .collection("data") // data collection
+          .get()
+          .then((event){
+            for (var doc in event.docs) {
+              print("${doc.id} => ${doc.data()}");
+            }
+          });
 
     /*
     await fireStore.collection("users").where("id", isEqualTo: "100242345133661897540").get().then((event) {
@@ -151,16 +169,6 @@ class MyAppState extends State<MyApp> {
       print("Printing user collection ------------------");
     });
     */
-
-    await fireStore.collection("users")
-          .doc("100242345133661897540")
-          .collection("data")
-          .get()
-          .then((event){
-            for (var doc in event.docs) {
-              print("${doc.id} => ${doc.data()}");
-            }
-          });
 
     /*late Future<QuerySnapshot<Map<String, dynamic>>> data = fireStore.collection("users").get();
     data.then((item){
@@ -174,6 +182,9 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    //signInWithGoogle();
+
     /*
     final user = signInWithGoogle();
     user.then((user){
@@ -251,7 +262,7 @@ class MyAppState extends State<MyApp> {
         drawer: SettingsDrawer(
             modifyCurrentWeekRange: modifyCurrentWeekRange,
             alternateChartType: alternateChartType,
-            signInWithGoogle: signInWithGoogle,
+            selectSignInWithGoogle: selectSignInWithGoogle,
             selectFileType: selectFileType,
             exportFile: exportFile,
             fileList: fileList,
