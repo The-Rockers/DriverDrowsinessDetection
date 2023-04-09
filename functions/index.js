@@ -8,29 +8,17 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-// Take the text parameter passed to this HTTP endpoint and insert it into 
-// Firestore under the path /messages/:documentId/original
-exports.addMessage = functions.https.onRequest(async (req, res) => {
+exports.getUserData = functions.https.onRequest(async (req, res) => { // returns JSON object of user's data in firestore for specified userID
 
-    let documents = [];
+    // firebase emulator test ID: pDElawFtvufKVcfItl6m
     let monthsDataKeys; // A list of keys for the doc.data() objects returnes
     let monthsString = ``;
     let monthsDataString = ``;
     let monthCount = -1; // keep index for months
 
-    let item;
-    // Grab the text parameter.
-    //pDElawFtvufKVcfItl6m
-    const userId = req.query.id;
-    // Push the new message into Firestore using the Firebase Admin SDK.
+    const userId = req.query.id; // should be in format: http://......../antisomnus-381222/......./getUserData?id=pDElawFtvufKVcfItl6m
 
-    //const writeResult = await admin.firestore().collection('messages').add({original: original});
-    await admin.firestore().collection('users').doc(userId).collection('data').get().then(snapshot => {
-
-      //const json = '{"1-1-23": {"1-1-23":[1,2,3,4,5], "1-8-23":[6,5,4,3,2]}}'; // example JSON body
-      // var test = `{"1-1-23":{"1-1-23":[1,2,3,4],"1-8-23":[1,2,3,45,6,7]}, "1-4-23":{"1-4-23":[1,2,3,45,6,71,2,3,4,5]}}` // This will work
-      // vat test = `{"1-1-23":{"1-1-23":[1,2,3,4],"1-8-23":[1,2,3,45,6,7]}, "1-4-23":{"1-4-23":[1,2,3,45,6,71,2,3,4,5]},}`
-      //const obj = JSON.parse(json);
+    await admin.firestore().collection('users').doc(userId).collection('data').get().then(snapshot => { // retrieve firestore data and format as JSON response
 
       let JSONResponseText = `{`;
 
@@ -72,47 +60,10 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
 
       JSONResponseText += '}';
 
-      /*let JSONResponse = {
-        months: monthsString,
-        monthsData: monthsDataString
-      };*/
-
-      /*
-        let text = '{ "employees" : [' +
-        '{ "firstName":"John" , "lastName":"Doe" },' +
-        '{ "firstName":"Anna" , "lastName":"Smith" },' +
-        '{ "firstName":"Peter" , "lastName":"Jones" } ]}';
-        */
-
-      console.log(JSONResponseText);
       res.json(JSON.parse(JSONResponseText));
       return "";
+      
     }).catch(reason => {
       res.send(reason);
     })
   });
-
-
-/*
-
-// Listens for new messages added to /messages/:documentId/original and creates an
-// uppercase version of the message to /messages/:documentId/uppercase
-exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
-.onCreate((snap, context) => {
-
-  // Grab the current value of what was written to Firestore.
-  const original = snap.data().original;
-
-  // Access the parameter `{documentId}` with `context.params`
-  functions.logger.log('Uppercasing', context.params.documentId, original);
-  
-  const uppercase = original.toUpperCase();
-  
-  // You must return a Promise when performing asynchronous tasks inside a Functions such as
-  // writing to Firestore.
-  // Setting an 'uppercase' field in Firestore document returns a Promise.
-  return snap.ref.set({uppercase}, {merge: true});
-  
-});
-
-*/
