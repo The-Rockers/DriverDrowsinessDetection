@@ -31,8 +31,9 @@ exports.getUserData = functions.https.onRequest(async (req, res) => { // returns
         JSONResponseText += `{`;
 
         monthsDataKeys = Object.keys(doc.data()); // retrieves the months attributes for each document
-        monthsDataKeys.forEach( (key,index) => {
+        monthsDataKeys.forEach( (key,index) => { // for each week in the month
 
+          monthsDataString = ``; // reset monthsDataString for each week's data
           monthsDataString += `${doc.data()[key]}`;
 
           JSONResponseText += `"${key}":`
@@ -62,7 +63,7 @@ exports.getUserData = functions.https.onRequest(async (req, res) => { // returns
 
       res.json(JSON.parse(JSONResponseText));
       return "";
-      
+
     }).catch(reason => {
       res.send(reason);
     })
