@@ -1,5 +1,4 @@
-// // Create and deploy your first functions
-// // https://firebase.google.com/docs/functions/get-started
+// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540 // Deployment code
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 const functions = require('firebase-functions');
@@ -12,6 +11,7 @@ const admin = require('firebase-admin');
 admin.initializeApp({
   // NEED TO REMEMBER TO CHANGE EMULATION BUCKET TO PRODUCTION BUCKET!!!
   //storageBucket: "gs://antisomnus-381222.appspot.com/", // emulation bucket
+  keyFilename: "./service-account.json",
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
 });
 
@@ -26,11 +26,20 @@ let writeToBucket = function(filePath, userId){ // Works BUT must initialize app
   const storage = admin.storage();
   let destination = `dash_reports/${userId}/report.csv`;
 
-  return storage
-      .bucket()
-      .upload( filePath, { destination } )
-      .then( () => {console.log("sucessfully uploaded file to bucket"); /*fs.unlinkSync(filePath)*/} ) // DO NOT DELETE FILE. does not execute synchronously
-      .catch(err => console.error('ERROR inside upload: ', err) );
+  storage.bucket()
+  .upload( filePath, { destination } )
+  .then( () => {console.log("sucessfully uploaded file to bucket"); /*fs.unlinkSync(filePath)*/} ) // DO NOT DELETE FILE. does not execute synchronously
+  .catch(err => console.error('ERROR inside upload: ', err) );
+
+  let expireTime = new Date();
+
+  storage.bucket().file(destination).getSignedUrl({
+    action: 'read',
+    expires: expireTime.setMinutes(expireTime.getMinutes() + 5), // will be valid for 5 minutes
+  }).then(signedUrls => {
+    console.log("Signed URL: " + signedUrls[0]); // Works in production environment
+    return signedUrls[0];
+  });
 
 }
 
@@ -85,7 +94,7 @@ let writeToCSV = function(data, userId){
 
 }
 
-exports.getUserData = functions.https.onRequest(async (req, res) => { // returns JSON object of user's data in firestore for specified userID
+exports.exportUserData = functions.https.onRequest(async (req, res) => { // returns JSON object of user's data in firestore for specified userID
 
     // firebase emulator test ID: pDElawFtvufKVcfItl6m
     let monthsDataKeys; // A list of keys for the doc.data() objects returnes
@@ -142,10 +151,11 @@ exports.getUserData = functions.https.onRequest(async (req, res) => { // returns
       let JSONObject = JSON.parse(JSONResponseText);
 
       let path = writeToCSV(JSONObject, userId);
-      writeToBucket(path,userId);
+      let signedURL = writeToBucket(path,userId);
       //fs.unlinkSync(path) // DO NOT EXECUTE. does not execute synchronously
 
-      res.json(JSONObject); 
+      //res.json(JSONObject); 
+      res.send(signedURL);
       return "";
 
     }).catch(reason => {
