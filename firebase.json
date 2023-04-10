@@ -34,7 +34,16 @@
     "ui": {
       "enabled": true
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "hosting": {
+      "port": 5000
+    },
+    "storage": {
+      "port": 9200
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
   },
   "functions": [
     {

@@ -1,0 +1,8 @@
+save emulator data on exit
+firebase emulators:start --export-on-exit=./saved-data
+
+import data from
+firebase emulators:start --import=./saved-data
+
+combined command
+firebase emulators:start --import=./saved-data --export-on-exit
