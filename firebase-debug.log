@@ -1,0 +1,10 @@
+[debug] [2023-04-10T13:46:46.014Z] ----------------------------------------------------------------------
+[debug] [2023-04-10T13:46:46.018Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\amanx\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --import=./saved-data --export-on-exit
+[debug] [2023-04-10T13:46:46.019Z] CLI Version:   11.25.3
+[debug] [2023-04-10T13:46:46.019Z] Platform:      win32
+[debug] [2023-04-10T13:46:46.019Z] Node Version:  v18.14.1
+[debug] [2023-04-10T13:46:46.021Z] Time:          Mon Apr 10 2023 09:46:46 GMT-0400 (Eastern Daylight Time)
+[debug] [2023-04-10T13:46:46.022Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-04-10T13:46:46.281Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-04-10T13:46:46.283Z] > authorizing via signed-in user (akoua@umich.edu)
