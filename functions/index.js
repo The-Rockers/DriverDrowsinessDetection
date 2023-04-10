@@ -3,36 +3,36 @@
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 const functions = require('firebase-functions');
-const spawn = require('child-process-promise').spawn;
-const path = require('path');
 const os = require('os');
-const fs = require('fs');
+const path = require('path');
+const fs = require('fs'); 
 
 // The Firebase Admin SDK to access Firestore.
 const admin = require('firebase-admin');
 admin.initializeApp({
-  storageBucket: "gs://antisomnus-381222.appspot.com/", // emulation bucket
-  //storageBucket: "gs://antisomnus-bucket", // Deployment bucket
+  //storageBucket: "gs://antisomnus-381222.appspot.com/", // emulation bucket
+  storageBucket: "gs://antisomnus-bucket", // Deployment bucket
 });
 
 let writeToBucket = function(filePath, userId){ // writes file to bucket
 
-  // writes file to temporary cloud function instance storage and uploads to bucket
+  console.log("writing to bucket!");
 
+  // writes file to temporary cloud function instance storage and uploads to bucket
+  console.log("Writing to bucket!");
   const storage = admin.storage();
   let destination = `dash_reports/${userId}/report.csv`;
-  console.log("writing to : " + destination);
+  console.log("writing to : " + destination); 
 
   return storage
       .bucket()
       .upload( filePath, { destination } )
-      .then( () => fs.unlinkSync(filePath) )
+      .then( () => fs.unlinkSync(filePath) ) // delete the temp file
       .catch(err => console.error('ERROR inside upload: ', err) );
 
 }
 
 let writeToCSV = function(data, userId){
-
   let outputString = `Month, Week, Day 1, Day 2, Day 3, Day 4, Day 5, Day 6, Day 7 \n`;
 
   //console.log("DATA: " + data);
@@ -64,12 +64,28 @@ let writeToCSV = function(data, userId){
 
   try {
       //console.log("writing to CSV");
-      fs.appendFileSync(`./antisomnus_data${userId}.csv`, outputString); 
+      //fs.appendFileSync(`./antisomnus_data${userId}.csv`, outputString); // works on local but not on GCP
+      console.log("writing to CSV");
+      console.log(os.tmpdir());
+      let tempPath = path.join(os.tmpdir(), `${userId}.csv`)
+
+      try{
+        console.log("trying to write to file");
+        fs.appendFileSync(tempPath, outputString);
+        console.log("written to file");
+      }
+      catch(err){
+        console.log("error: " + err);
+      }
+
+      //return tempPath;
+      
   } catch (err) {
       console.error(err);
   }
-  
-  return `./antisomnus_data${userId}.csv`; // returns the file path to the new file
+
+    //return `./antisomnus_data${userId}.csv`; // returns the file path to the new file // works on local but not GCP
+    //return tempPath; // moving this code into the block with fs.appendFileSync (above) works BUT it does not write to file. Moving it down here writes to file but does not sent it to storage?
 
 }
 
@@ -126,7 +142,10 @@ exports.getUserData = functions.https.onRequest(async (req, res) => { // returns
       let JSONObject = JSON.parse(JSONResponseText);
 
       let path = writeToCSV(JSONObject, userId);
-      writeToBucket(path,userId);
+      console.log("path being read from: " + path);
+      //writeToBucket(path,userId);
+      writeToBucket(path.join(os.tmpdir(), `${userId}.csv`), userId);
+      console.log("written to bucket!");
 
       res.json(JSONObject);
       return "";

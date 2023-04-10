@@ -1,0 +1,19 @@
+{
+  "name": "Cool wallpaper.jpg",
+  "bucket": "antisomnus-381222.appspot.com",
+  "metageneration": 1,
+  "generation": 1681094618770,
+  "contentType": "image/jpeg",
+  "storageClass": "STANDARD",
+  "contentDisposition": "inline",
+  "downloadTokens": [
+    "ec735fac-09d6-4a12-85b6-4ed2bd457d4b"
+  ],
+  "etag": "Kv+ba6LU+ckY772la04TyoH5nNc",
+  "customMetadata": {},
+  "timeCreated": "2023-04-10T02:43:38.770Z",
+  "updated": "2023-04-10T02:43:38.770Z",
+  "size": 484744,
+  "md5Hash": "YKQpizfua3dvkhdd4O8q7g==",
+  "crc32c": "1725892495"
+}

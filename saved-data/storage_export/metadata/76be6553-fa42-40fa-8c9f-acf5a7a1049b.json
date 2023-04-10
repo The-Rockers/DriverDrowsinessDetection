@@ -1,0 +1,15 @@
+{
+  "name": "dash_reports/100242345133661897540/report.csv",
+  "bucket": "antisomnus-bucket",
+  "metageneration": 1,
+  "generation": 1681103951924,
+  "contentType": "text/csv",
+  "storageClass": "STANDARD",
+  "downloadTokens": [],
+  "etag": "WOWPyBQi/6g4aB/bn8GvAdlSL4k",
+  "timeCreated": "2023-04-10T05:19:11.924Z",
+  "updated": "2023-04-10T05:19:11.924Z",
+  "size": 360,
+  "md5Hash": "AES6iMg6Dsax6bhHx+78NA==",
+  "crc32c": "440582968"
+}

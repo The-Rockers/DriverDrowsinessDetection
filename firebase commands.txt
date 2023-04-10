@@ -4,5 +4,7 @@ firebase emulators:start --export-on-exit=./saved-data
 import data from
 firebase emulators:start --import=./saved-data
 
-combined command
+combined command (USE THIS ONE!!!)
 firebase emulators:start --import=./saved-data --export-on-exit
+
+firebase deploy --only functions
