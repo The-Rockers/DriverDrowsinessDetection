@@ -8,3 +8,6 @@ combined command (USE THIS ONE!!!)
 firebase emulators:start --import=./saved-data --export-on-exit
 
 firebase deploy --only functions
+
+ignore the fatal error that arises
+git add --ignore-errors .
