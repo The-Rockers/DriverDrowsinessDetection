@@ -11,3 +11,6 @@ firebase deploy --only functions
 
 ignore the fatal error that arises
 git add --ignore-errors .
+
+Ignore CORS restrictions in flutter localhost testing
+flutter run -d chrome --web-browser-flag "--disable-web-security"

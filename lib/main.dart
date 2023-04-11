@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'firebase_options.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:math';
 import 'dart:async';
@@ -49,6 +53,8 @@ class MyAppState extends State<MyApp> {
   String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore (my umich acc ID)
   late bool doesUserHaveData = true; // default to true and show mock data to user
 
+  String reportSignedURL = "Signed URL here";
+
   void modifyCurrentWeekRange() {
     // Alternate between 1,2, and 4 week time range.
     switch (currentWeekRange) {
@@ -88,8 +94,36 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  /*
   void exportFile() {
     print("Selected: ${fileType}");
+  }
+  */
+
+  launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void exportFile() async {
+    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540
+    //String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${reportSignedURL}'; // get signedURL for current user
+    String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${globalUserId}';
+    String responseURL;
+
+    final response = await http.get(Uri.parse(url));
+    responseURL = jsonDecode(response.body)["url"];
+
+    print("export response URL: ${responseURL}");
+
+    print("launching URL!");
+
+    launchURL(responseURL);
+
   }
 
   void changeExportFileType(String? value) {
@@ -351,6 +385,7 @@ class MyAppState extends State<MyApp> {
             //crossAxisAlignment: CrossAxisAlignment.stretch,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Text('${reportSignedURL}'),
               DrowsinessGraph(
                   data: data,
                   days: daysText,

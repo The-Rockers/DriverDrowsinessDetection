@@ -158,7 +158,10 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
       let path = writeToCSV(JSONObject, userId);
       writeToBucket(path,userId).then((signedURL) => {
         console.log("Returned signed URL from writeToBucket: " + signedURL);
-        res.send(`${signedURL}`);
+
+        let signedURLJSON = `{"url" : "${signedURL}"}`; // return signed URL as JSON
+        res.send(JSON.parse(signedURLJSON));
+        //res.send(`${signedURL}`);
       });
 
       console.log("Finished sending signed URL!");

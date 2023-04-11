@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import "package:http/http.dart" as http;
 import 'dart:async';
 
 class SettingsDrawer extends StatelessWidget {
