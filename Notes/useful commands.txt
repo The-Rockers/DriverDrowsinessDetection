@@ -7,6 +7,7 @@ firebase emulators:start --import=./saved-data
 combined command (USE THIS ONE!!!)
 firebase emulators:start --import=./saved-data --export-on-exit
 
+deploy functions
 firebase deploy --only functions
 
 ignore the fatal error that arises
