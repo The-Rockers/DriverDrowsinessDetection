@@ -53,8 +53,6 @@ class MyAppState extends State<MyApp> {
   String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore (my umich acc ID)
   late bool doesUserHaveData = true; // default to true and show mock data to user
 
-  String reportSignedURL = "Signed URL here";
-
   void modifyCurrentWeekRange() {
     // Alternate between 1,2, and 4 week time range.
     switch (currentWeekRange) {
@@ -385,7 +383,6 @@ class MyAppState extends State<MyApp> {
             //crossAxisAlignment: CrossAxisAlignment.stretch,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('${reportSignedURL}'),
               DrowsinessGraph(
                   data: data,
                   days: daysText,
