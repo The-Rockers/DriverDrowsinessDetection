@@ -6,6 +6,7 @@ const functions = require('firebase-functions');
 const os = require('os');
 const path = require('path');
 const fs = require('fs'); 
+const reader = require('xlsx');
 
 // The Firebase Admin SDK to access Firestore.
 const admin = require('firebase-admin');
@@ -51,7 +52,7 @@ let writeToBucket = function(filePath, userId){ // Works BUT must initialize app
 
 let writeToCSV = function(data, userId){
 
-  let tempPath = path.join(os.tmpdir(), `${userId}.csv`)
+  let tempPath = path.join(os.tmpdir(), `${userId}.csv`);
   let outputString = `Month, Week, Day 1, Day 2, Day 3, Day 4, Day 5, Day 6, Day 7 \n`;
 
   //console.log("DATA: " + data);
@@ -97,6 +98,18 @@ let writeToCSV = function(data, userId){
   //return `./antisomnus_data${userId}.csv`; // returns the file path to the new file // works on local but not GCP
   console.log("Returning filepath from writetocsv: " + tempPath);
   return null; // moving this code into the block with fs.appendFileSync (above) works BUT it does not write to file. Moving it down here writes to file but does not sent it to storage?
+
+}
+
+let writeToExcel = function(data, userId){ // needs to be properly tested before being deployed
+
+  // data will be passed in a JSONObject
+  
+let tempPath =  path.join(os.tmpdir(), `${userId}.xlsx`);
+const file = reader.readFile(tempPath);
+
+const ws = reader.utils.json_to_sheet(data); // 
+reader.utils.book_append_sheet
 
 }
 
