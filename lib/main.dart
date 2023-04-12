@@ -100,11 +100,15 @@ class MyAppState extends State<MyApp> {
 
   launchURL(String url) async {
     final uri = Uri.parse(url);
+    await launchUrl(uri);
+    
+    /*
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
       throw 'Could not launch $url';
     }
+    */
   }
 
   void exportFile() async {

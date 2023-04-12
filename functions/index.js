@@ -101,6 +101,9 @@ let writeToCSV = function(data, userId){
 
 exports.exportUserData = functions.https.onRequest(async (req, res) => { // returns JSON object of user's data in firestore for specified userID
 
+    res.header('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Origin', '*'); // set access control so all sites can call API without receiving CORS errors
+
     // firebase emulator test ID: pDElawFtvufKVcfItl6m
     let monthsDataKeys; // A list of keys for the doc.data() objects returnes
     let monthsString = ``;
@@ -160,6 +163,9 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
         console.log("Returned signed URL from writeToBucket: " + signedURL);
 
         let signedURLJSON = `{"url" : "${signedURL}"}`; // return signed URL as JSON
+        
+        res.header('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Origin', '*');
         res.send(JSON.parse(signedURLJSON));
         //res.send(`${signedURL}`);
       });
