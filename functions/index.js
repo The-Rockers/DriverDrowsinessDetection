@@ -1,4 +1,5 @@
-// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540 // Deployment code
+// ?data={googleUser ID}-{fileType} // API request query format
+// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=100242345133661897540-csv // example
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 const functions = require('firebase-functions');
@@ -110,10 +111,26 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
     let monthsDataString = ``;
     let monthCount = -1; // keep index for months
 
-    const userId = req.query.id; // should be in format: http://......../antisomnus-381222/......./getUserData?id=pDElawFtvufKVcfItl6m
+    const query = req.query.data; // inject information to API in format ?data={googleUser ID}-{fileType}
+    const queryData = query.split("-");
+    const userId = queryData[0];
+    const fileType = queryData[1].toUpperCase(); // CSV, PRK, XLS, 
+    //const userId = req.query.data; // should be in format: http://......../antisomnus-381222/......./getUserData?id=pDElawFtvufKVcfItl6m
+    //const fileType = req.query.type; 
+
+    console.log("User ID in request query: " + userId);
+    console.log("File type in request query: " + fileType);
+
+    if(!(fileType == "CSV" || fileType == "PRK" || fileType == "XLS")){
+      return res.send("Error: Invalid file type entered. Supported types are CSV, PRK, or XLS");
+    }
+
+    if(queryData.length != 2){
+      return res.send("Error: Incorrect number of vars or format. Expected format \"?data=id-type\"");
+    }
 
     if(!userId || userId == ""){
-      return res.send("Error: no User if Present");
+      return res.send("Error: no User is Present");
     }
 
     await admin.firestore().collection('users').doc(userId).collection('data').get().then(snapshot => { // retrieve firestore data and format as JSON response
