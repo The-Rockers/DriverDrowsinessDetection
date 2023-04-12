@@ -17,7 +17,7 @@ admin.initializeApp({
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
 });
 
-let writeToBucket = function(filePath, userId){ // Works BUT must initialize app to the RIGHT bucket for each environment
+let writeToBucket = function(filePath, userId, fileType){ // Works BUT must initialize app to the RIGHT bucket for each environment
 
   if(filePath == null){
     console.log("The filepath was null!");
@@ -25,8 +25,25 @@ let writeToBucket = function(filePath, userId){ // Works BUT must initialize app
   }
 
   // writes file to temporary cloud function instance storage and uploads to bucket
+
+  var type;
+
+  switch(fileType){
+    case "CSV":
+      type = "csv";
+      break;
+
+    case "XLS":
+      type = "xlsx";
+      break;
+
+    case "PRK":
+      type = "csv";
+      break;
+  }
+
   const storage = admin.storage();
-  let destination = `dash_reports/${userId}/report.csv`;
+  let destination = `dash_reports/${userId}/report.${type}`;
   let url = [];
 
   storage.bucket()
@@ -104,12 +121,25 @@ let writeToCSV = function(data, userId){
 let writeToExcel = function(data, userId){ // needs to be properly tested before being deployed
 
   // data will be passed in a JSONObject
-  
-let tempPath =  path.join(os.tmpdir(), `${userId}.xlsx`);
-const file = reader.readFile(tempPath);
+  console.log("Writing to excel file!");
+  let tempPath =  path.join(os.tmpdir(), `${userId}.xlsx`); // location and filename where file will be written to
 
-const ws = reader.utils.json_to_sheet(data); // 
-reader.utils.book_append_sheet
+  console.log("Converting JSON object to sheet");
+  let tempJSONArray = [];
+  tempJSONArray.push(data);
+  console.log("Temp JSON array: " + data);
+  const ws = reader.utils.json_to_sheet(tempJSONArray); // Very nifty method!
+  console.log("Creating new excel file");
+  const wb = reader.utils.book_new();
+  console.log("Created new excel file");
+
+  console.log("Writing excel file");
+  reader.utils.book_append_sheet(wb,ws,"data");
+  console.log("Writing to file");
+  reader.writeFile(wb, tempPath);
+  console.log("FIle has been written to");
+
+  return tempPath;
 
 }
 
@@ -187,9 +217,29 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
       JSONResponseText += '}';
 
       let JSONObject = JSON.parse(JSONResponseText);
+      console.log(JSONObject);
 
-      let path = writeToCSV(JSONObject, userId);
-      writeToBucket(path,userId).then((signedURL) => {
+      //     if(!(fileType == "CSV" || fileType == "PRK" || fileType == "XLS")){
+
+      var path = "";
+
+      switch(fileType){
+        case "CSV":
+          path = writeToCSV(JSONObject, userId);
+          break;
+
+        case "XLS":
+          path = writeToExcel(JSONObject, userId);
+          break;
+
+        case "PRK":
+          path = writeToCSV(JSONObject, userId); // not yet implemented
+          break;
+      }
+
+      //let path = writeToExcel(JSONObject, userId); // write to excel file testing
+      //let path = writeToCSV(JSONObject, userId);
+        writeToBucket(path,userId, fileType).then((signedURL) => {
         console.log("Returned signed URL from writeToBucket: " + signedURL);
 
         let signedURLJSON = `{"url" : "${signedURL}"}`; // return signed URL as JSON
