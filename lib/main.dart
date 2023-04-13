@@ -42,8 +42,8 @@ class MyAppState extends State<MyApp> {
 
   bool isBarChart = true;
 
-  List<String> fileList = <String>['PDF', 'Excel', 'CSV', 'Txt'];
-  String fileType = 'PDF'; // Needs default value to avoid crashing
+  List<String> fileList = <String>['Excel', 'CSV', 'Parquet'];
+  String fileType = 'Excel'; // Needs default value to avoid crashing
 
   final fireStore = FirebaseFirestore.instance;
   List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
@@ -114,7 +114,24 @@ class MyAppState extends State<MyApp> {
   void exportFile() async {
     // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540
     //String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${reportSignedURL}'; // get signedURL for current user
-    String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${globalUserId}';
+
+    String type = "";
+    
+    switch(fileType){
+      case "Excel":
+        type = "xls";
+        break;
+      case "Parquet":
+        type = "prq";
+        break;
+      case "CSV":
+        type = "csv";
+    }
+
+    //   List<String> fileList = <String>['Excel', 'CSV', 'Parquet'];
+
+    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=100242345133661897540-csv // example
+    String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=${globalUserId}-${type}';
     String responseURL;
 
     final response = await http.get(Uri.parse(url));
