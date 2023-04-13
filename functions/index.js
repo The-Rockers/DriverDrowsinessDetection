@@ -246,10 +246,9 @@ let writeToParquet = async function(data, userId){
   });
 
 
-  for(let i = 0; i < /*tempJSONArray.length*/ 20; i++){
+  for(let i = 0; i < tempJSONArray.length; i++){
    try{
     await writer.appendRow(tempJSONArray[i]);
-    //await writer.appendRow({Month: '1-1-23', Week: '1-1-23', Day1: 1, Day2:3, Day3:3, Day4:5, Day5:6, Day6:8, Day7:57});
    } catch (e){
     console.log("Error: " + e);
    }
