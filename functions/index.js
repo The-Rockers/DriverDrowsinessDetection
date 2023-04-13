@@ -7,6 +7,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs'); 
 const reader = require('xlsx');
+const parquet = require('parquetjs');
 
 // The Firebase Admin SDK to access Firestore.
 const admin = require('firebase-admin');
@@ -37,8 +38,8 @@ let writeToBucket = function(filePath, userId, fileType){ // Works BUT must init
       type = "xlsx";
       break;
 
-    case "PRK":
-      type = "csv"; // parquet file not currently supported
+    case "PRQ":
+      type = "parquet"; // parquet file not currently supported
       break;
   }
 
@@ -125,7 +126,7 @@ let writeToExcel = function(data, userId){ // needs to be properly tested before
   // JSON string should be in format '{"Month":"1-1-23","Week":"1-15-23","Day1":5,"Day2":2,"Day3":6,"Day7":9}'
   // run JSON parse on the String
 
-  let tempPath =  path.join(os.tmpdir(), `${userId}.xlsx`); // location and filename where file will be written to
+  let tempPath = path.join(os.tmpdir(), `${userId}.xlsx`); // location and filename where file will be written to
 
   // data will be passed in a JSONObject
   var outputString = ``;
@@ -185,6 +186,80 @@ let writeToExcel = function(data, userId){ // needs to be properly tested before
 
 }
 
+let writeToParquet = async function(data, userId){
+
+  var schema = new parquet.ParquetSchema({
+    Month: { type: 'UTF8' },
+    Week: { type: 'UTF8' },
+    Day1: { type: 'INT64' },
+    Day2: { type: 'INT64' },
+    Day3: { type: 'INT64' },
+    Day4: { type: 'INT64' },
+    Day5: { type: 'INT64' },
+    Day6: { type: 'INT64' },
+    Day7: { type: 'INT64' },
+  });
+
+  let tempPath = path.join(os.tmpdir(), `${userId}.parquet`)
+  let writer = await parquet.ParquetWriter.openFile(schema, tempPath);
+
+  var outputString = ``;
+  var tempJSONArray = [];
+  var tempJSONObject;
+  var months = Object.keys(data); // returns the keys to the JSON object (which are months)
+
+  months.forEach((month) => {
+    let weeks = Object.keys(data[month]); // weeksStarts
+
+      weeks.forEach((week) => {
+        outputString = `{"Month": "${month}", "Week": "${week}",`;
+
+        let values = data[month][week]
+
+        for(let i = 0; i < 7; i++){
+          if(!values[i]){
+            outputString += `"Day${i+1}":${0}`;
+          }
+          else{
+            outputString += `"Day${i+1}":${values[i]}`;
+          }
+          if(i === 6){
+            outputString += ``;
+          }
+          else{
+            outputString += `,`;
+          }
+          
+        }
+
+        outputString += `}\n`; 
+
+        try{
+        tempJSONObject = JSON.parse(outputString);
+        } catch (e) {
+          console.log("error: " + e);
+        }
+
+        tempJSONArray.push(JSON.parse(outputString));
+
+      });
+  });
+
+
+  for(let i = 0; i < /*tempJSONArray.length*/ 20; i++){
+   try{
+    await writer.appendRow(tempJSONArray[i]);
+    //await writer.appendRow({Month: '1-1-23', Week: '1-1-23', Day1: 1, Day2:3, Day3:3, Day4:5, Day5:6, Day6:8, Day7:57});
+   } catch (e){
+    console.log("Error: " + e);
+   }
+  }
+
+  await writer.close();
+  return tempPath;
+
+}
+
 exports.exportUserData = functions.https.onRequest(async (req, res) => { // returns JSON object of user's data in firestore for specified userID
 
     res.header('Access-Control-Allow-Origin', '*');
@@ -199,15 +274,15 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
     const query = req.query.data; // inject information to API in format ?data={googleUser ID}-{fileType}
     const queryData = query.split("-");
     const userId = queryData[0];
-    const fileType = queryData[1].toUpperCase(); // CSV, PRK, XLS, 
+    const fileType = queryData[1].toUpperCase(); // CSV, PRQ, XLS, 
     //const userId = req.query.data; // should be in format: http://......../antisomnus-381222/......./getUserData?id=pDElawFtvufKVcfItl6m
     //const fileType = req.query.type; 
 
     console.log("User ID in request query: " + userId);
     console.log("File type in request query: " + fileType);
 
-    if(!(fileType == "CSV" || fileType == "PRK" || fileType == "XLS")){
-      return res.send("Error: Invalid file type entered. Supported types are CSV, PRK, or XLS");
+    if(!(fileType == "CSV" || fileType == "PRQ" || fileType == "XLS")){
+      return res.send("Error: Invalid file type entered. Supported types are CSV, PRQ, or XLS");
     }
 
     if(queryData.length != 2){
@@ -218,7 +293,7 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
       return res.send("Error: no User is Present");
     }
 
-    await admin.firestore().collection('users').doc(userId).collection('data').get().then(snapshot => { // retrieve firestore data and format as JSON response
+    await admin.firestore().collection('users').doc(userId).collection('data').get().then(async snapshot => { // retrieve firestore data and format as JSON response
 
       let JSONResponseText = `{`;
 
@@ -261,7 +336,7 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
       let JSONObject = JSON.parse(JSONResponseText);
       //console.log(JSONObject);
 
-      //     if(!(fileType == "CSV" || fileType == "PRK" || fileType == "XLS")){
+      //     if(!(fileType == "CSV" || fileType == "PRQ" || fileType == "XLS")){
 
       var path = "";
 
@@ -274,8 +349,8 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
           path = writeToExcel(JSONObject, userId);
           break;
 
-        case "PRK":
-          path = writeToCSV(JSONObject, userId); // not yet implemented
+        case "PRQ":
+          path = await writeToParquet(JSONObject, userId);
           break;
       }
 
