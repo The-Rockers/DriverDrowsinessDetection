@@ -38,7 +38,7 @@ let writeToBucket = function(filePath, userId, fileType){ // Works BUT must init
       break;
 
     case "PRK":
-      type = "csv";
+      type = "csv"; // parquet file not currently supported
       break;
   }
 
@@ -120,24 +120,66 @@ let writeToCSV = function(data, userId){
 
 let writeToExcel = function(data, userId){ // needs to be properly tested before being deployed
 
-  // data will be passed in a JSONObject
-  console.log("Writing to excel file!");
+  // it expects an array of objects of this format
+  // let testObj = {Month: "1-1-23", Week: "1-15-23", Day1: 5, Day2: 2, Day3: 6, Day7: 9}
+  // JSON string should be in format '{"Month":"1-1-23","Week":"1-15-23","Day1":5,"Day2":2,"Day3":6,"Day7":9}'
+  // run JSON parse on the String
+
   let tempPath =  path.join(os.tmpdir(), `${userId}.xlsx`); // location and filename where file will be written to
 
-  console.log("Converting JSON object to sheet");
-  let tempJSONArray = [];
-  tempJSONArray.push(data);
-  console.log("Temp JSON array: " + data);
-  const ws = reader.utils.json_to_sheet(tempJSONArray); // Very nifty method!
-  console.log("Creating new excel file");
-  const wb = reader.utils.book_new();
-  console.log("Created new excel file");
+  // data will be passed in a JSONObject
+  var outputString = ``;
+  var tempJSONArray = [];
+  var tempJSONObject;
+  var months = Object.keys(data); // returns the keys to the JSON object (which are months)
 
-  console.log("Writing excel file");
+  months.forEach((month) => {
+    let weeks = Object.keys(data[month]); // weeksStarts
+
+      weeks.forEach((week) => {
+        outputString = `{"Month": "${month}", "Week": "${week}",`;
+
+        let values = data[month][week]
+        let temp = [];
+
+        for(let i = 0; i < 7; i++){
+          if(!values[i]){
+            outputString += `"Day${i+1}":${0}`;
+          }
+          else{
+            outputString += `"Day${i+1}":${values[i]}`;
+          }
+          if(i === 6){
+            outputString += ``;
+          }
+          else{
+            outputString += `,`;
+          }
+          
+        }
+
+        outputString += `}\n`; 
+
+        try{
+        tempJSONObject = JSON.parse(outputString); // fails at this line
+        } catch (e) {
+          console.log("error: " + e);
+        }
+        tempJSONArray.push(JSON.parse(outputString));
+
+        // '{"Month":"1-1-23","Week":"1-15-23","Day1":5,"Day2":2,"Day3":6,"Day7":9}'
+        // Parse that object and push to teampJSONArray
+
+      });
+  });
+
+  //tempJSONArray.push(data);
+
+  const ws = reader.utils.json_to_sheet(tempJSONArray); // Very nifty method!
+  const wb = reader.utils.book_new();
+
   reader.utils.book_append_sheet(wb,ws,"data");
-  console.log("Writing to file");
   reader.writeFile(wb, tempPath);
-  console.log("FIle has been written to");
 
   return tempPath;
 
@@ -217,7 +259,7 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
       JSONResponseText += '}';
 
       let JSONObject = JSON.parse(JSONResponseText);
-      console.log(JSONObject);
+      //console.log(JSONObject);
 
       //     if(!(fileType == "CSV" || fileType == "PRK" || fileType == "XLS")){
 
