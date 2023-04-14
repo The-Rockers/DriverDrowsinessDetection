@@ -1,0 +1,13 @@
+name: driver_drowsiness_detection
+version: '0.1'
+
+services:
+  app:
+    image: driver_drowsiness_detection
+    build: .
+    ports:
+      - 127.0.0.1:7860:3000
+    volumes:
+      - ./app:/app/app
+      - ./model/data:/app/model/data
+      - ./model/training/saved_models:/app/model/training/saved_models

@@ -1,0 +1,10 @@
+gradio
+opencv-python-headless
+numpy
+polars
+seaborn
+matplotlib
+scikit-learn
+scipy
+tensorflow
+mediapipe
