@@ -1,0 +1,16 @@
+ONLY SUPPORTS CSV ATM
+
+Google cloud function:
+
+Retrieve data from firestore for given user by their ID (passed in through http request by ?id={userID})
+Format the information as a JSON object, parse the data, and handle is an object storing data.
+Write the data to CSV and store it onto the local or VMs (depends where the function is executing) temp directory.
+Write that CSV to the antisomnus bucket and place into respective folder
+User firebase service account with token generation pemission to generate a signed URL with a TTL of 5 mins.
+Package that signed URL as a JSON respons and send it back to the client side.
+
+Flutter frontend:
+
+make HTTP request to cloud function API with the given userID that's recorded when a user logs in with google.
+Deconde the JSON response from the API and access the "url" property (holding signed URL).
+launch that URL to download the document onto the user's machine.

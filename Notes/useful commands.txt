@@ -1,0 +1,17 @@
+save emulator data on exit
+firebase emulators:start --export-on-exit=./saved-data
+
+import data from
+firebase emulators:start --import=./saved-data
+
+combined command (USE THIS ONE!!!)
+firebase emulators:start --import=./saved-data --export-on-exit
+
+deploy functions
+firebase deploy --only functions
+
+ignore the fatal error that arises
+git add --ignore-errors .
+
+Ignore CORS restrictions in flutter localhost testing
+flutter run -d chrome --web-browser-flag "--disable-web-security"

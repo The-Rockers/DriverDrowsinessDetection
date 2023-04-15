@@ -3,7 +3,7 @@ node_modules/
 .expo/
 dist/
 web/
-buid/
+build/
 .dart_tool/
 npm-debug.*
 *.jks
@@ -13,6 +13,10 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+
+google_clientId.dart
+service-account.json
+firebase-debug.log
 
 # macOS
 .DS_Store

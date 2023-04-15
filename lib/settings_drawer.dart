@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import "package:http/http.dart" as http;
+import 'dart:async';
 
 class SettingsDrawer extends StatelessWidget {
 
@@ -8,13 +11,14 @@ class SettingsDrawer extends StatelessWidget {
   VoidCallback? alternateChartType;
   bool isBarChart;
 
-  VoidCallback? exportFile;
-
   final void Function(String?)? Function() selectFileType;
+  VoidCallback? exportFile;
   List<String> fileList;
   String fileType;
 
-  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.exportFile, required this.selectFileType, required this.fileList, required this.fileType, required this.isBarChart, this.currentWeekRange});
+  void Function() Function() selectSignInWithGoogle;
+
+  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.selectSignInWithGoogle, required this.exportFile, required this.selectFileType, required this.fileList, required this.fileType, required this.isBarChart, this.currentWeekRange});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,9 @@ class SettingsDrawer extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.account_circle_rounded),
               title: Text("Log in"),
+              onTap: (){
+                selectSignInWithGoogle()();
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle_rounded),

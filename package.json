@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@google-cloud/storage": "^6.9.5",
+    "child-process-promise": "^2.2.1"
+  }
+}
