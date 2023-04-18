@@ -49,7 +49,7 @@ class MyAppState extends State<MyApp> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
   List<DrowsinessData> userDrowsinessData = mockData; // initiaize to mock data for the time being
 
-  late UserCredential globalUser;
+  late UserCredential? globalUser = null;
   String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore (my umich acc ID)
   late bool doesUserHaveData = true; // default to true and show mock data to user
 
@@ -135,7 +135,13 @@ class MyAppState extends State<MyApp> {
     String responseURL;
 
     final response = await http.get(Uri.parse(url));
-    responseURL = jsonDecode(response.body)["url"];
+
+    try{
+      responseURL = jsonDecode(response.body)["url"];
+    } catch(e){
+      print("Error upon parsing JSON response from exporting file: ${e}");
+      return;
+    }
 
     print("export response URL: ${responseURL}");
 
@@ -174,7 +180,7 @@ class MyAppState extends State<MyApp> {
 
       setState((){
         globalUser = tempUser;
-        globalUserId = globalUser.additionalUserInfo?.profile!["id"];
+        globalUserId = globalUser?.additionalUserInfo?.profile!["id"];
       });
 
         getFirestoreData();
@@ -185,6 +191,23 @@ class MyAppState extends State<MyApp> {
 
   void Function() selectSignInWithGoogle(){ // for passing function to settings drawer
     return (signInWithGoogle);
+  }
+
+  void signOut(){
+
+    if(globalUser == null){
+      return;
+    }
+
+    setState((){
+      globalUser = null;
+      globalUserId = "";
+      doesUserHaveData = false;
+    });
+  }
+
+  void Function() selectSignOut(){
+    return (signOut);
   }
 
   void getFirestoreData() async {
@@ -392,6 +415,8 @@ class MyAppState extends State<MyApp> {
             modifyCurrentWeekRange: modifyCurrentWeekRange,
             alternateChartType: alternateChartType,
             selectSignInWithGoogle: selectSignInWithGoogle,
+            selectSignOut: selectSignOut,
+            globalUser: globalUser,
             selectFileType: selectFileType,
             exportFile: exportFile,
             fileList: fileList,

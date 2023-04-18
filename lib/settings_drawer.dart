@@ -17,8 +17,10 @@ class SettingsDrawer extends StatelessWidget {
   String fileType;
 
   void Function() Function() selectSignInWithGoogle;
+  void Function() Function() selectSignOut;
+  UserCredential? globalUser;
 
-  SettingsDrawer({this.modifyCurrentWeekRange, this.alternateChartType, required this.selectSignInWithGoogle, required this.exportFile, required this.selectFileType, required this.fileList, required this.fileType, required this.isBarChart, this.currentWeekRange});
+  SettingsDrawer({this.currentWeekRange, this.modifyCurrentWeekRange, this.alternateChartType, required this.isBarChart, required this.selectSignInWithGoogle, required this.selectSignOut, required this.globalUser, required this.exportFile, required this.selectFileType, required this.fileList, required this.fileType});
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +42,19 @@ class SettingsDrawer extends StatelessWidget {
               leading: Icon(Icons.account_circle_rounded),
               title: Text("Log in"),
               onTap: (){
-                selectSignInWithGoogle()();
+                if(globalUser == null){
+                  selectSignInWithGoogle()(); 
+                }
+                else{
+                  null;
+                }
               },
+              //onTap: null,
             ),
             ListTile(
               leading: Icon(Icons.account_circle_rounded),
               title: Text("Log out"),
+              onTap: selectSignOut(),
             ),
             ListTile(
               leading: Icon(Icons.settings),
