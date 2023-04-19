@@ -1,11 +1,15 @@
-// ?data={googleUser ID}-{fileType} // API request query format
-// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=100242345133661897540-csv // example
+// ?id={googleUser ID}&type={fileType} // API request query format
+// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540&type=csv // production example
+// http://127.0.0.1:5001/antisomnus-381222/us-central1/exportUserData?id=100242345133661897540&type=csv // local
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 const functions = require('firebase-functions');
+
 const os = require('os');
-const path = require('path');
 const fs = require('fs'); 
+const url = require('url');
+
+const path = require('path');
 const reader = require('xlsx');
 const parquet = require('parquetjs');
 
@@ -270,22 +274,22 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
     let monthsDataString = ``;
     let monthCount = -1; // keep index for months
 
-    const query = req.query.data; // inject information to API in format ?data={googleUser ID}-{fileType}
-    const queryData = query.split("-");
-    const userId = queryData[0];
-    const fileType = queryData[1].toUpperCase(); // CSV, PRQ, XLS, 
-    //const userId = req.query.data; // should be in format: http://......../antisomnus-381222/......./getUserData?id=pDElawFtvufKVcfItl6m
-    //const fileType = req.query.type; 
+    const queryData = url.parse(req.url, true).query;
 
+    console.log("Number of params in query: " + Object.keys(queryData).length);
+
+    if(Object.keys(queryData).length != 2){
+      return res.send("Error: Incorrect number of params in query. Expected format \"?id={userID}&type={fileType}\"");
+    }
+
+    const userId = queryData.id;
+    let fileType = queryData.type.toUpperCase();
+  
     console.log("User ID in request query: " + userId);
     console.log("File type in request query: " + fileType);
 
     if(!(fileType == "CSV" || fileType == "PRQ" || fileType == "XLS")){
       return res.send("Error: Invalid file type entered. Supported types are CSV, PRQ, or XLS");
-    }
-
-    if(queryData.length != 2){
-      return res.send("Error: Incorrect number of vars or format. Expected format \"?data=id-type\"");
     }
 
     if(!userId || userId == ""){

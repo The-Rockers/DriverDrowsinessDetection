@@ -130,8 +130,8 @@ class MyAppState extends State<MyApp> {
 
     //   List<String> fileList = <String>['Excel', 'CSV', 'Parquet'];
 
-    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=100242345133661897540-csv // example
-    String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?data=${globalUserId}-${type}';
+    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540&type=csv // example
+    String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${globalUserId}&type=${type}';
     String responseURL;
 
     final response = await http.get(Uri.parse(url));
