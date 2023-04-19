@@ -17,6 +17,7 @@ web-build/
 google_clientId.dart
 service-account.json
 firebase-debug.log
+.flutter-plugins-dependencies
 
 # macOS
 .DS_Store

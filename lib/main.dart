@@ -134,6 +134,11 @@ class MyAppState extends State<MyApp> {
     String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${globalUserId}&type=${type}';
     String responseURL;
 
+    if(globalUser == null || globalUserId == ""){ // making fewer calls to the API will save money in the long haul...
+      print("No global user or global user ID is present");
+      return;
+    }
+
     final response = await http.get(Uri.parse(url));
 
     try{
