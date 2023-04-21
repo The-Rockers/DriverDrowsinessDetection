@@ -21,7 +21,8 @@ const Storage = require('@google-cloud/storage');
 const app = express();
 const storage = new Storage({
   projectId: 'antisomnus-381222',
-  keyFilename: './keyfile.json----'
+  storageBucket: "gs://antisomnus-bucket", // Deployment bucket
+  keyFilename: './keyfile.json'
 });
 
 app.get('/', (req, res) => {
@@ -45,6 +46,9 @@ app.post('/data/send', (req,res)=>{
 });
 
 app.get('/model/getName', (req,res)=>{
+  
+  //storage.
+
   console.log("Retrieving model name...");
   res.status(200).send("Retrieving model name");
 });
