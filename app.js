@@ -16,16 +16,30 @@
 
 // [START gae_flex_quickstart]
 const express = require('express');
+const authRoute = require('./authRoute.js');
 
 const app = express();
 
 app.get('/', (req, res) => {
-  res.status(200).send('Hello, ADDDS Team!').end();
+  console.log("regular request body: " + req.body);
+  res.status(200).send('Hello, Team!').end();
 });
+
+app.use('/auth', authRoute);
+
+app.get('*', (req, res) => {
+  res.status(400).send("Sorry, this is an invalid URL");
+});
+
+/*app.use('/', (req,res,next)=>{ // example of middleware functions
+  res.status(200).send("The next method is being used on a subroute of things!");
+  next();
+})*/
 
 // Start the server
 const PORT = parseInt(process.env.PORT) || 8080;
 app.listen(PORT, () => {
+  // function is called when the server start listening for requests
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });

@@ -1,0 +1,15 @@
+
+For running express server localling without needing to constantly restart the application
+    nodemon (app.js)
+
+Make an HTTP request from the terminal on a windows machine
+    curl -method Post "http://localhost:8080/testing" 
+    help curl
+
+    curl -H "Content-Type: application/json" -d '{"AccessToken":"123"}' -X GET localhost:8080/auth 
+    curl -H "Content-Type: application/json" -d '{"AccessToken":"123"}' -X GET localhost:8080
+
+    Never ended up getting express to accept a JSON body???
+
+Send a JSON payload in a CURL command
+    curl -Body '{"AccessToken":""}' -Headers "Content-Type: application/json" http://127.0.0.1:8080/auth
