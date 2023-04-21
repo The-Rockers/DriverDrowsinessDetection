@@ -16,8 +16,13 @@
 
 // [START gae_flex_quickstart]
 const express = require('express');
+const Storage = require('@google-cloud/storage');
 
 const app = express();
+const storage = new Storage({
+  projectId: 'antisomnus-381222',
+  keyFilename: './keyfile.json'
+});
 
 app.get('/', (req, res) => {
   console.log("Hello, Team");

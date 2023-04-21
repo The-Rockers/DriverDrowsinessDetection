@@ -13,3 +13,9 @@ Make an HTTP request from the terminal on a windows machine
 
 Send a JSON payload in a CURL command
     curl -Body '{"AccessToken":""}' -Headers "Content-Type: application/json" http://127.0.0.1:8080/auth
+
+This app is deployed on app engine at the following link
+    https://antisomnus-381222.uc.r.appspot.com
+
+This command opens the app engine site in your browser
+    gcloud app browse
