@@ -16,25 +16,42 @@
 
 // [START gae_flex_quickstart]
 const express = require('express');
-const authRoute = require('./authRoute.js');
 
 const app = express();
 
 app.get('/', (req, res) => {
-  console.log("regular request body: " + req.body);
+  console.log("Hello, Team");
   res.status(200).send('Hello, Team!').end();
 });
 
-app.use('/auth', authRoute);
-
-app.get('*', (req, res) => {
-  res.status(400).send("Sorry, this is an invalid URL");
+app.get('/auth/:AccessToken', (req, res) => {
+  console.log("The access token was: " + req.params.AccessToken);
+  res.status(200).send("Access token was: " + req.params.AccessToken);
 });
 
-/*app.use('/', (req,res,next)=>{ // example of middleware functions
-  res.status(200).send("The next method is being used on a subroute of things!");
-  next();
-})*/
+app.get('/data/getList', (req,res)=>{
+  console.log("Retrieving data list...");
+  res.status(200).send("Retrieving data list");
+});
+
+app.post('/data/send', (req,res)=>{
+  console.log("receiving data....");
+  res.status(200).send("receiving data...");
+});
+
+app.get('/model/getName', (req,res)=>{
+  console.log("Retrieving model name...");
+  res.status(200).send("Retrieving model name");
+});
+
+app.get('/model/retrieve', (req,res)=>{
+  console.log("Retrieving model...");
+  res.status(200).send("Retrieving model...");
+});
+
+app.all('*', (req, res) => {
+  res.status(400).send("Sorry, this is an invalid URL or HTTP method type");
+});
 
 // Start the server
 const PORT = parseInt(process.env.PORT) || 8080;
