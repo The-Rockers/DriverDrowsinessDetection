@@ -164,6 +164,7 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
     }
 
     tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`);
+    //tempPath = path.join('./test.avi');
 
     if(!fs.existsSync(tempPath)){
       fs.mkdirSync(tempPath, { recursive: true });
@@ -176,6 +177,7 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
       },  
       filename: function (req, file, callback) {  
         originalFileName = file.originalname;
+        tempPath += originalFileName;
         callback(null, file.originalname);  
       }  
     });
@@ -206,8 +208,8 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
         await storage.bucket("antisomnus-bucket").upload("./test.avi", options) // I dont have permissions to read from my temp directory?
         .catch(err => console.error('ERROR inside upload: ', err) );
         */
-       
-        await storage.bucket("antisomnus-bucket").upload(tempPath, options) // I dont have permissions to read from my temp directory?
+
+        await storage.bucket("antisomnus-bucket").upload(tempPath, options) // I dont have permissions to read from my temp directory???
         .catch(err => console.error('ERROR inside upload: ', err) );
 
         res.send("file Uploaded successfully!");  
