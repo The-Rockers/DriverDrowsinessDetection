@@ -16,7 +16,7 @@
 
 // [START gae_flex_quickstart]
 const express = require('express');
-const Storage = require('@google-cloud/storage');
+const {Storage} = require('@google-cloud/storage');
 
 const app = express();
 const storage = new Storage({
@@ -45,12 +45,32 @@ app.post('/data/send', (req,res)=>{
   res.status(200).send("receiving data...");
 });
 
-app.get('/model/getName', (req,res)=>{
+app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of models stored
   
-  //storage.
+  let models = [];
+  let destination = `models/`;
 
-  console.log("Retrieving model name...");
-  res.status(200).send("Retrieving model name");
+  await storage.bucket("antisomnus-bucket").getFiles({ prefix: 'models/', autoPaginate: false }).then((files)=>{
+
+    files[0].forEach((element) => {
+      models.push(element.name.substring(destination.length, element.length));
+    });
+
+  });
+
+  let JSONResponse = `'{"names":[`;
+  models.forEach((name, index)=>{
+    if(index < models.length -1){
+      JSONResponse += `"${name}",`; // comma
+    }
+    else{
+      JSONResponse += `"${name}"`; // no comma
+    }
+
+  });
+  JSONResponse += `]}'`;
+
+  res.status(200).send(JSONResponse);
 });
 
 app.get('/model/retrieve', (req,res)=>{
