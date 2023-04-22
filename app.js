@@ -35,9 +35,77 @@ app.get('/auth/:AccessToken', (req, res) => {
   res.status(200).send("Access token was: " + req.params.AccessToken);
 });
 
-app.get('/data/getList', (req,res)=>{
-  console.log("Retrieving data list...");
-  res.status(200).send("Retrieving data list");
+app.get('/data/getLists', async (req,res)=>{
+  // /data/getLists?userId=100242345133661897540 (example route)
+
+  if(!req.query.userId){
+    res.status(404).send("Invalid userID");
+  }
+  else{
+
+    let userId = req.query.userId;
+    let videoFiles = [];
+    let predictionFiles = [];
+    let userVidDest = `users/${userId}/prediction_data/`;
+    let userPredDest = `users/${userId}/video_data/`;
+
+    // '{"names":["en_model_v0.h5"], "testVals": [1,2,3,4,5]}'
+    let JSONResponse = `'{"videoFiles":[`;
+  
+    await storage.bucket("antisomnus-bucket").getFiles({ prefix: userVidDest, autoPaginate: false }).then((files)=>{
+  
+      files[0].forEach((element) => {
+        videoFiles.push(element.name.substring(userVidDest.length, element.length));
+      });
+  
+    });
+
+    await storage.bucket("antisomnus-bucket").getFiles({ prefix: userPredDest, autoPaginate: false }).then((files)=>{
+  
+      files[0].forEach((element) => {
+        predictionFiles.push(element.name.substring(userPredDest.length, element.length));
+      });
+  
+    });
+
+    videoFiles.forEach((name, index)=>{
+
+      if(name.length != 0){ //Remves the extra file with no name
+  
+        if(index < videoFiles.length -1){
+          JSONResponse += `"${name}",`; // comma
+        }
+        else{
+          JSONResponse += `"${name}"`; // no comma
+        }
+  
+      }
+  
+    });
+
+    JSONResponse += `], "predictionFiles":[`;
+
+    predictionFiles.forEach((name, index)=>{
+
+      if(name.length != 0){ //Remves the extra file with no name
+  
+        if(index < predictionFiles.length -1){
+          JSONResponse += `"${name}",`; // comma
+        }
+        else{
+          JSONResponse += `"${name}"`; // no comma
+        }
+  
+      }
+  
+    });
+
+    JSONResponse += `]}'`;
+
+    //console.log(JSONResponse);
+    res.status(200).send(JSONResponse);
+  }
+
 });
 
 app.post('/data/send', (req,res)=>{
@@ -77,6 +145,7 @@ app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of mo
   JSONResponse += `]}'`;
 
   res.status(200).send(JSONResponse);
+
 });
 
 app.get('/model/retrieve', (req,res)=>{
