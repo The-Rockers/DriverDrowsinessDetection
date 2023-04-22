@@ -17,8 +17,15 @@
 // [START gae_flex_quickstart]
 const express = require('express');
 const {Storage} = require('@google-cloud/storage');
+const multer = require('multer');  
+
+const path = require('path');
+const fs = require('fs'); 
+const os = require('os');
+const url = require('url');
 
 const app = express();
+
 const storage = new Storage({
   projectId: 'antisomnus-381222',
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
@@ -40,6 +47,7 @@ app.get('/data/getLists', async (req,res)=>{
 
   if(!req.query.userId){
     res.status(404).send("Invalid userID");
+    return;
   }
   else{
 
@@ -108,9 +116,64 @@ app.get('/data/getLists', async (req,res)=>{
 
 });
 
-app.post('/data/send', (req,res)=>{
-  console.log("receiving data....");
-  res.status(200).send("receiving data...");
+app.get('/data/send', (req,res)=>{ // change to app.post after testing // NOT YET FINISHED
+
+  // http://localhost:8080/data/send?userId=100242345133661897540&type=csv (example request)
+
+  const queryData = url.parse(req.url, true).query;
+
+  if(Object.keys(queryData).length != 2){
+
+    res.status(404).send("Error: Incorrect number of params in query. Expected format \"?userId={userID}&type={fileType}\"");
+    return;
+
+  }
+  else{
+
+    let type;
+    const userId = queryData.userId;
+    let fileType = queryData.type.toUpperCase();
+
+    if(fileType === "CSV" || fileType === "PARQUET"){ // Will only accept CSV files for prediction data...
+      type = "prediction-data";
+    }
+    else if(fileType === "AVI" || fileType === "MP4"){
+      type = "video-data";
+    }
+    else{
+      res.status(404).send("Error: Unsupported file format " + fileType);
+      return;
+    }
+
+    let tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`)
+
+    const localStorage = multer.diskStorage({  
+      destination: function (req, file, callback) {  
+        callback(null, tempPath); // will have to experiment with this
+      },  
+      filename: function (req, file, callback) {  
+        callback(null, file.originalname);  
+      }  
+    });
+
+    let upload = multer({ storage : storage}); //myfile might need to be changed...
+
+    upload(req,res,function(err){
+      if(err){
+        res.send("Error uploading file.");
+        return;
+      }
+      else{
+        res.send("fileUploaded successfully!");  
+      }
+    });
+
+    console.log(tempPath);
+
+    console.log("receiving data....");
+    res.status(200).send("receiving data...");
+  }
+
 });
 
 app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of models stored
@@ -154,6 +217,7 @@ app.get('/model/retrieve', (req,res)=>{
 
   if(!req.query.name){
     res.status(404).send("Invalid model name.");
+    return;
   }
   else{ // send signed URL as JSON response
 
