@@ -1,6 +1,5 @@
 'use strict';
 
-// [START gae_flex_quickstart]
 const express = require('express');
 const {Storage} = require('@google-cloud/storage');
 const multer = require('multer');  
@@ -23,11 +22,6 @@ app.get('/', (req, res) => {
   res.status(200).send('Hello, Team!').end();
 });
 
-app.get('/auth/:AccessToken', (req, res) => {
-  console.log("The access token was: " + req.params.AccessToken);
-  res.status(200).send("Access token was: " + req.params.AccessToken);
-});
-
 app.get('/data/getLists', async (req,res)=>{
   // /data/getLists?userId=100242345133661897540 (example route)
 
@@ -43,7 +37,6 @@ app.get('/data/getLists', async (req,res)=>{
     let userVidDest = `users/${userId}/prediction_data/`;
     let userPredDest = `users/${userId}/video_data/`;
 
-    // '{"names":["en_model_v0.h5"], "testVals": [1,2,3,4,5]}'
     let JSONResponse = `'{"videoFiles":[`;
   
     await storage.bucket("antisomnus-bucket").getFiles({ prefix: userVidDest, autoPaginate: false }).then((files)=>{
@@ -102,9 +95,9 @@ app.get('/data/getLists', async (req,res)=>{
 
 });
 
-app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT YET FINISHED
+app.post('/data/send', (req,res)=>{
 
-  // http://localhost:8080/data/send?userId=100242345133661897540&type=csv (example request)
+  // /data/send?userId=100242345133661897540&type=csv (example endpoint request)
 
   const queryData = url.parse(req.url, true).query;
 
@@ -122,10 +115,10 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
     let tempPath;
     let originalFileName;
 
-    if(fileType === "CSV" || fileType === "PARQUET"){ // Will only accept CSV files for prediction data...
+    if(fileType === "CSV" || fileType === "PARQUET"){ // Will only accept CSV & parquet files for prediction data...
       type = "prediction_data";
     }
-    else if(fileType === "AVI" || fileType === "MP4"){
+    else if(fileType === "AVI" || fileType === "MP4"){ // Will only accept AVI and MP4 files for prediction data
       type = "video_data";
     }
     else{
@@ -134,7 +127,6 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
     }
 
     tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`);
-    //tempPath = path.join('./test.avi');
 
     if(!fs.existsSync(tempPath)){
       fs.mkdirSync(tempPath, { recursive: true });
@@ -142,8 +134,7 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
 
     var localStorage = multer.diskStorage({ 
       destination: function (req, file, callback) {  
-        callback(null, tempPath); // will have to experiment with this
-        //callback(null, './testing'); // will have to experiment with this
+        callback(null, tempPath);
       },  
       filename: function (req, file, callback) {  
         originalFileName = file.originalname;
@@ -152,7 +143,7 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
       }  
     });
 
-    var upload = multer({ storage : localStorage}).single('file'); // might need to be changed...
+    var upload = multer({ storage : localStorage}).single('file');
     
     upload(req,res,async function(err){
       if(err){
@@ -160,17 +151,18 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
         return;
       }
       else{
-        console.log("Temp path: " + tempPath);
 
         const bucketDestination = `users/${userId}/${type}/${originalFileName}`;
+
         console.log("Bucket dest: " + bucketDestination);
+        console.log("Temp path: " + tempPath);
 
         const options = {
           destination: bucketDestination,
-          //preconditionOpts: {ifGenerationMatch: 0},
+          //preconditionOpts: {ifGenerationMatch: 0}, // unecessary attribute
         };
 
-        await storage.bucket("antisomnus-bucket").upload(tempPath, options) // I dont have permissions to read from my temp directory???
+        await storage.bucket("antisomnus-bucket").upload(tempPath, options)
         .catch(err => console.error('ERROR inside upload: ', err) );
 
         res.send("file Uploaded successfully!");  
@@ -220,7 +212,7 @@ app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of mo
 
 app.get('/model/retrieve', (req,res)=>{
 
-  // /model/retrieve?name={model name} follow this format for querying
+  // /model/retrieve?name={model name} (endpoint example)
 
   if(!req.query.name){
     res.status(404).send("Invalid model name.");
@@ -257,6 +249,5 @@ app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
-// [END gae_flex_quickstart]
 
 module.exports = app;
