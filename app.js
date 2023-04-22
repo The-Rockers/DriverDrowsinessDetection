@@ -32,6 +32,22 @@ const storage = new Storage({
   keyFilename: './keyfile.json'
 });
 
+/*
+let tempPath = path.join(os.tmpdir());
+
+const localStorage = multer.diskStorage({  
+  destination: function (req, file, callback) {  
+    //callback(null, tempPath); // will have to experiment with this
+    callback(null, "./testing"); // will have to experiment with this
+  },  
+  filename: function (req, file, callback) {  
+    callback(null, file.originalname);  
+  }  
+});
+
+let upload = multer({ storage : storage}).single('myfile'); //myfile might need to be changed...
+*/
+
 app.get('/', (req, res) => {
   console.log("Hello, Team");
   res.status(200).send('Hello, Team!').end();
@@ -116,7 +132,7 @@ app.get('/data/getLists', async (req,res)=>{
 
 });
 
-app.get('/data/send', (req,res)=>{ // change to app.post after testing // NOT YET FINISHED
+app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT YET FINISHED
 
   // http://localhost:8080/data/send?userId=100242345133661897540&type=csv (example request)
 
@@ -145,33 +161,38 @@ app.get('/data/send', (req,res)=>{ // change to app.post after testing // NOT YE
       return;
     }
 
-    let tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`)
+    
+    let tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`);
 
-    const localStorage = multer.diskStorage({  
+    if(!fs.existsSync(tempPath)){
+      fs.mkdirSync(tempPath, { recursive: true });
+    }
+
+    var localStorage = multer.diskStorage({ 
       destination: function (req, file, callback) {  
         callback(null, tempPath); // will have to experiment with this
+        //callback(null, './testing'); // will have to experiment with this
       },  
       filename: function (req, file, callback) {  
         callback(null, file.originalname);  
       }  
     });
 
-    let upload = multer({ storage : storage}); //myfile might need to be changed...
-
+    var upload = multer({ storage : localStorage}).single('file'); // might need to be changed...
+    
     upload(req,res,function(err){
       if(err){
         res.send("Error uploading file.");
         return;
       }
       else{
-        res.send("fileUploaded successfully!");  
+        console.log(tempPath);
+        res.send("file Uploaded successfully!");  
       }
     });
 
-    console.log(tempPath);
-
     console.log("receiving data....");
-    res.status(200).send("receiving data...");
+    //res.status(200).send("receiving data...");
   }
 
 });

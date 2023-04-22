@@ -9,7 +9,9 @@ Make an HTTP request from the terminal on a windows machine
     curl -H "Content-Type: application/json" -d '{"AccessToken":"123"}' -X GET localhost:8080/auth 
     curl -H "Content-Type: application/json" -d '{"AccessToken":"123"}' -X GET localhost:8080
 
-    Never ended up getting express to accept a JSON body???
+    The following command gets me a result at least
+       curl.exe --data-binary @C:\Users\amanx\Downloads\report.parquet http://localhost:8080/data/send?userId=100242345133661897540"&"type=parquet
+       curl.exe --data-binary @C:\Users\amanx\Downloads\test.avi -H 'content-type: multipart/form-data;' http://localhost:2000/
 
 Send a JSON payload in a CURL command
     curl -Body '{"AccessToken":""}' -Headers "Content-Type: application/json" http://127.0.0.1:8080/auth
