@@ -1,17 +1,3 @@
-// Copyright 2017 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 'use strict';
 
 // [START gae_flex_quickstart]
@@ -31,22 +17,6 @@ const storage = new Storage({
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
   keyFilename: './keyfile.json'
 });
-
-/*
-let tempPath = path.join(os.tmpdir());
-
-const localStorage = multer.diskStorage({  
-  destination: function (req, file, callback) {  
-    //callback(null, tempPath); // will have to experiment with this
-    callback(null, "./testing"); // will have to experiment with this
-  },  
-  filename: function (req, file, callback) {  
-    callback(null, file.originalname);  
-  }  
-});
-
-let upload = multer({ storage : storage}).single('myfile'); //myfile might need to be changed...
-*/
 
 app.get('/', (req, res) => {
   console.log("Hello, Team");
@@ -199,15 +169,6 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
           destination: bucketDestination,
           //preconditionOpts: {ifGenerationMatch: 0},
         };
-
-        /*
-
-        // on my local machine, it does not allow me to read from my tempPath (illegal operation)?
-        // Trying it in production might yield different results
-
-        await storage.bucket("antisomnus-bucket").upload("./test.avi", options) // I dont have permissions to read from my temp directory?
-        .catch(err => console.error('ERROR inside upload: ', err) );
-        */
 
         await storage.bucket("antisomnus-bucket").upload(tempPath, options) // I dont have permissions to read from my temp directory???
         .catch(err => console.error('ERROR inside upload: ', err) );
