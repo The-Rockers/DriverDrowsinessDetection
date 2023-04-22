@@ -149,20 +149,21 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
     let type;
     const userId = queryData.userId;
     let fileType = queryData.type.toUpperCase();
+    let tempPath;
+    let originalFileName;
 
     if(fileType === "CSV" || fileType === "PARQUET"){ // Will only accept CSV files for prediction data...
-      type = "prediction-data";
+      type = "prediction_data";
     }
     else if(fileType === "AVI" || fileType === "MP4"){
-      type = "video-data";
+      type = "video_data";
     }
     else{
       res.status(404).send("Error: Unsupported file format " + fileType);
       return;
     }
 
-    
-    let tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`);
+    tempPath = path.join(os.tmpdir(), `/${userId}/${type}/`);
 
     if(!fs.existsSync(tempPath)){
       fs.mkdirSync(tempPath, { recursive: true });
@@ -174,19 +175,41 @@ app.post('/data/send', (req,res)=>{ // change to app.post after testing // NOT Y
         //callback(null, './testing'); // will have to experiment with this
       },  
       filename: function (req, file, callback) {  
+        originalFileName = file.originalname;
         callback(null, file.originalname);  
       }  
     });
 
     var upload = multer({ storage : localStorage}).single('file'); // might need to be changed...
     
-    upload(req,res,function(err){
+    upload(req,res,async function(err){
       if(err){
         res.send("Error uploading file.");
         return;
       }
       else{
-        console.log(tempPath);
+        console.log("Temp path: " + tempPath);
+
+        const bucketDestination = `users/${userId}/${type}/${originalFileName}`;
+        console.log("Bucket dest: " + bucketDestination);
+
+        const options = {
+          destination: bucketDestination,
+          //preconditionOpts: {ifGenerationMatch: 0},
+        };
+
+        /*
+
+        // on my local machine, it does not allow me to read from my tempPath (illegal operation)?
+        // Trying it in production might yield different results
+
+        await storage.bucket("antisomnus-bucket").upload("./test.avi", options) // I dont have permissions to read from my temp directory?
+        .catch(err => console.error('ERROR inside upload: ', err) );
+        */
+       
+        await storage.bucket("antisomnus-bucket").upload(tempPath, options) // I dont have permissions to read from my temp directory?
+        .catch(err => console.error('ERROR inside upload: ', err) );
+
         res.send("file Uploaded successfully!");  
       }
     });
