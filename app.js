@@ -49,6 +49,7 @@ app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of mo
   
   let models = [];
   let destination = `models/`;
+  let JSONResponse = `'{"names":[`;
 
   await storage.bucket("antisomnus-bucket").getFiles({ prefix: 'models/', autoPaginate: false }).then((files)=>{
 
@@ -58,24 +59,51 @@ app.get('/model/getName', async (req,res)=>{ // retrieve the list of names of mo
 
   });
 
-  let JSONResponse = `'{"names":[`;
   models.forEach((name, index)=>{
-    if(index < models.length -1){
-      JSONResponse += `"${name}",`; // comma
-    }
-    else{
-      JSONResponse += `"${name}"`; // no comma
+
+    if(name.length != 0){ //Remves the extra file with no name
+
+      if(index < models.length -1){
+        JSONResponse += `"${name}",`; // comma
+      }
+      else{
+        JSONResponse += `"${name}"`; // no comma
+      }
+
     }
 
   });
+
   JSONResponse += `]}'`;
 
   res.status(200).send(JSONResponse);
 });
 
 app.get('/model/retrieve', (req,res)=>{
-  console.log("Retrieving model...");
-  res.status(200).send("Retrieving model...");
+
+  // /model/retrieve?name={model name} follow this format for querying
+
+  if(!req.query.name){
+    res.status(404).send("Invalid model name.");
+  }
+  else{ // send signed URL as JSON response
+
+    let fileName = req.query.name;
+    let destination = `models/${fileName}`;
+    let expireTime = new Date();
+    let JSONResponse = `'{"url":"`;
+
+    storage.bucket('antisomnus-bucket').file(destination).getSignedUrl({
+      action: 'read',
+      expires: expireTime.setMinutes(expireTime.getMinutes() + 10), // will be valid for 5 minutes
+    }).then(signedUrls => {
+      let url =  signedUrls[0];
+      JSONResponse += `${url}"}'`;
+      res.status(200).send(JSONResponse);
+    });
+
+  }
+
 });
 
 app.all('*', (req, res) => {
