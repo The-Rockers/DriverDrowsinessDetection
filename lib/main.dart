@@ -22,9 +22,10 @@ battery level: 00002a19-0000-1000-8000-00805f9b34fb
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:location_permissions/location_permissions.dart';
+import 'package:location_permissions/location_permissions.dart' as LocationPermissions;
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -64,7 +65,12 @@ class MyAppState extends State<MyApp>{
     setState(() {
       _scanStarted = true;
     });
-    PermissionStatus permission;
+
+    LocationPermissions.PermissionStatus locationPermission;
+    PermissionStatus bluetoothScanPermission;
+    PermissionStatus bluetoothAdvertisePermission;
+    PermissionStatus bluetoothConnectPermission;
+
     if (Platform.isAndroid) {
       
       /*
@@ -72,8 +78,15 @@ class MyAppState extends State<MyApp>{
       is on and paermissions are granted. No idea why.
       */
 
-      permission = await LocationPermissions().requestPermissions();
-      if (permission == PermissionStatus.granted) permGranted = true;
+      bluetoothConnectPermission = await Permission.bluetoothConnect.request();
+      bluetoothAdvertisePermission = await Permission.bluetoothAdvertise.request();
+      bluetoothScanPermission = await Permission.bluetoothScan.request();
+      locationPermission = await LocationPermissions.LocationPermissions().requestPermissions();
+
+      if (locationPermission == LocationPermissions.PermissionStatus.granted) permGranted = true;
+
+      //permGranted = true;
+
     } else if (Platform.isIOS) {
       permGranted = true;
     }
