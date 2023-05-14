@@ -3,6 +3,8 @@
 const express = require('express');
 const {Storage} = require('@google-cloud/storage');
 const multer = require('multer');  
+const { OAuth2Client } = require('google-auth-library');
+const firebaseAdmin = require('firebase-admin');
 
 const path = require('path');
 const fs = require('fs'); 
@@ -16,6 +18,11 @@ const storage = new Storage({
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
   keyFilename: './keyfile.json'
 });
+
+// const serviceAccount = require('/path/to/serviceAccountKey.json');
+// firebaseAdmin.initializeApp({
+//   credential: firebaseAdmin.credential.cert(serviceAccount)
+// });
 
 app.get('/', (req, res) => {
   console.log("Hello, Team");
