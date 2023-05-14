@@ -22,9 +22,10 @@ battery level: 00002a19-0000-1000-8000-00805f9b34fb
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:location_permissions/location_permissions.dart';
+import 'package:location_permissions/location_permissions.dart' as LocationPermissions;
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,7 +51,7 @@ class MyAppState extends State<MyApp>{
   late QualifiedCharacteristic _rxCharacteristic;
   late QualifiedCharacteristic _rxCharacteristic1;
 
-  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my nuraphone. Change for pi
+  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my battery service on my nuraphone. Change for pi
   final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
   
   String text = "No devices discovered yet";
@@ -64,7 +65,12 @@ class MyAppState extends State<MyApp>{
     setState(() {
       _scanStarted = true;
     });
-    PermissionStatus permission;
+
+    LocationPermissions.PermissionStatus locationPermission;
+    PermissionStatus bluetoothScanPermission;
+    PermissionStatus bluetoothAdvertisePermission;
+    PermissionStatus bluetoothConnectPermission;
+
     if (Platform.isAndroid) {
       
       /*
@@ -72,8 +78,15 @@ class MyAppState extends State<MyApp>{
       is on and paermissions are granted. No idea why.
       */
 
-      permission = await LocationPermissions().requestPermissions();
-      if (permission == PermissionStatus.granted) permGranted = true;
+      bluetoothConnectPermission = await Permission.bluetoothConnect.request();
+      bluetoothAdvertisePermission = await Permission.bluetoothAdvertise.request();
+      bluetoothScanPermission = await Permission.bluetoothScan.request();
+      locationPermission = await LocationPermissions.LocationPermissions().requestPermissions();
+
+      if (locationPermission == LocationPermissions.PermissionStatus.granted) permGranted = true;
+
+      //permGranted = true;
+
     } else if (Platform.isIOS) {
       permGranted = true;
     }
@@ -83,9 +96,9 @@ class MyAppState extends State<MyApp>{
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
             print("------------ Scanning for devices ------------------");
-
+            // change this TODO
             // change device name to device that will be seen on the Pi
-            if(device.name == "nuraphone 926"){
+            if(device.name == "nuraphone 926"){ // if they're my nuraphones
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
 
@@ -93,12 +106,24 @@ class MyAppState extends State<MyApp>{
               print("Device ID: " + device.id);
 
               for(var id in device.serviceUuids){
-                print("Device UUIDs: " + id.toString());
+                print("Service UUIDs: " + id.toString());
               }
 
               setState(() {
-                text = "Nuraphone Found";
+                text = "Nuraphone service Found";
               });
+            }
+            else{
+
+              print("Device Name: " + device.name);
+              print("Device ID: " + device.id);
+              for(var id in device.serviceUuids){
+                print("Service UUIDs: " + id.toString());
+              }
+              setState(() {
+                text = "A device has been discovered. Check terminal for details";
+              });
+
             }
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
@@ -112,7 +137,7 @@ class MyAppState extends State<MyApp>{
         .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
             id: _bluetoothDevice.id,
             prescanDuration: const Duration(seconds: 5),
-            withServices: [serviceUuid], // hardcoded to nuraphone
+            withServices: [serviceUuid], // hardcoded to nuraphone service
           );
     _currentConnectionStream.listen((event) {
       switch (event.connectionState) {
@@ -120,7 +145,7 @@ class MyAppState extends State<MyApp>{
         case DeviceConnectionState.connected:
           {
             _rxCharacteristic = QualifiedCharacteristic(
-                serviceId: serviceUuid,
+                serviceId: serviceUuid, // battery service
                 characteristicId: characteristicUuid, // Battery level
                 deviceId: event.deviceId);
             setState(() {
