@@ -1,2 +1,5 @@
 node_modules/
+
 keyfile.json
+keyfile2.json
+firebaseClient.js

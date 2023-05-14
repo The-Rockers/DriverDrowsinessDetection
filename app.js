@@ -3,8 +3,9 @@
 const express = require('express');
 const {Storage} = require('@google-cloud/storage');
 const multer = require('multer');  
-const { OAuth2Client } = require('google-auth-library');
+// const { OAuth2Client } = require('google-auth-library');
 const firebaseAdmin = require('firebase-admin');
+// const firebaseAdminClientIds = require('./firebaseClient');
 
 const path = require('path');
 const fs = require('fs'); 
@@ -12,20 +13,49 @@ const os = require('os');
 const url = require('url');
 
 const app = express();
+// const client = new OAuth2Client();
 
+// Access to storage bucket
 const storage = new Storage({
   projectId: 'antisomnus-381222',
   storageBucket: "gs://antisomnus-bucket", // Deployment bucket
   keyFilename: './keyfile.json'
 });
 
-// const serviceAccount = require('/path/to/serviceAccountKey.json');
-// firebaseAdmin.initializeApp({
-//   credential: firebaseAdmin.credential.cert(serviceAccount)
-// });
+// access to firebase admin SDK for JWT authentication
+const serviceAccount = require('./keyfile2.json');
+const firebaseClient = firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert(serviceAccount)
+});
+
+async function verifyIdToken(idToken) {
+
+  try{
+    const payload = await firebaseAdmin.auth().verifyIdToken(idToken);
+    console.log(payload);
+  } catch (error){
+    console.error('Error verifying ID token:', error);
+    return null;
+  }
+
+}
+
+// REMOVE : Testing JWT functionality
+
+app.get('/testing', async (req,res)  => { // method to test JWT verification
+  // /testing?jwt={idTokenHere}
+  
+  let idToken = req.query.jwt; // in practice, the JWT will be sent in the header of the request
+  const uid = await verifyIdToken(idToken);
+  
+  res.status(200).send("ok");
+
+});
+
+//////////////////////////////////////////////////////
 
 app.get('/', (req, res) => {
-  console.log("Hello, Team");
+  console.log("Hello, Team!");
   res.status(200).send('Hello, Team!').end();
 });
 
