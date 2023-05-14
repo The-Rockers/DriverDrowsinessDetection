@@ -32,6 +32,7 @@ import 'firebase_options.dart';
 
 import 'google_clientId.dart';
 
+import 'dart:developer'; // for printing JWT to console
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -69,6 +70,7 @@ class MyAppState extends State<MyApp>{
   String userIdText = "user ID";
 
   late UserCredential globalUser;
+  late String JWT;
 
   @override
   void initState() {
@@ -219,29 +221,20 @@ class MyAppState extends State<MyApp>{
     }
   }
 
+  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
   void signInWithGoogle() async {
     // Trigger the authentication flow
 
-
-    print("--------1--------");
-
     GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
-    // GoogleSignIn googleSignIn = await GoogleSignIn(serverClientId: GoogleClientId.clientId); //clientId is not supported on android.
-
-    print("--------2--------");
-
+    
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-     print("--------3--------");
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    print("--------4--------");
-    print(googleUser);
-    print("--------5--------");
-    print(googleAuth?.idToken);
-    print("--------6--------");
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -251,13 +244,15 @@ class MyAppState extends State<MyApp>{
 
     await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
-      setState((){
-        globalUser = tempUser;
-        userIdText = globalUser?.additionalUserInfo?.profile!["id"];
-      });
+      // setState((){
+      //   globalUser = tempUser;
+      //   userIdText = globalUser.additionalUserInfo!.profile!["id"];
+      //   //userID is null and accessing it will throw a runtime error
+      // });
 
-      tempUser.user?.getIdToken().then((token){
-        print('user token is: ${token}');
+      tempUser.user?.getIdToken(true).then((token){
+        JWT = token; // make token globally accessible
+        printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
       });
 
     });
@@ -266,7 +261,6 @@ class MyAppState extends State<MyApp>{
 
   @override
   Widget build(BuildContext context) {
-    print("-----------------------------");
     return MaterialApp(
       title: "ADDDS Bluetooth App",
       home:Scaffold(

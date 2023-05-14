@@ -11,6 +11,8 @@
 migrate_working_dir/
 
 /node_modules
+/linux
+/macos
 
 # files containing API keys (one form or another)
 
