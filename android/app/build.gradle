@@ -1,3 +1,12 @@
+// need to add plugins for google sign in
+
+plugins {
+  id 'com.android.application'
+  // Add the Google services Gradle plugin
+  id 'com.google.gms.google-services'
+  // not certain if other plugins need to be specified here, or if this obj conflicts with plugins defined above
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -70,4 +79,9 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // BOM will always import that compatible versions of firebase libraries
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+
+    implementation 'com.google.firebase:firebase-auth-ktx'
 }

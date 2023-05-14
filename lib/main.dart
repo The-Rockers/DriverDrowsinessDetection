@@ -221,40 +221,52 @@ class MyAppState extends State<MyApp>{
 
   void signInWithGoogle() async {
     // Trigger the authentication flow
+
+
+    print("--------1--------");
+
     GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
+    // GoogleSignIn googleSignIn = await GoogleSignIn(serverClientId: GoogleClientId.clientId); //clientId is not supported on android.
+
+    print("--------2--------");
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+     print("--------3--------");
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-    print("-----------------");
+    print("--------4--------");
     print(googleUser);
-    print("-----------------");
+    print("--------5--------");
     print(googleAuth?.idToken);
-    print("-----------------");
+    print("--------6--------");
 
-    // this code is not required for this application
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
 
-    //userIdText = googleAuth!.idToken!; // bang operator (!) tells flutter values will not be null
+    await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
-    // // Create a new credential
-    // final credential = GoogleAuthProvider.credential(
-    //   accessToken: googleAuth?.accessToken,
-    //   idToken: googleAuth?.idToken,
-    // );
+      setState((){
+        globalUser = tempUser;
+        userIdText = globalUser?.additionalUserInfo?.profile!["id"];
+      });
 
-    // await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
-    //   setState((){
-    //     globalUser = tempUser;
-    //     userIdText = globalUser?.additionalUserInfo?.profile!["id"];
-    //   });
-    // });
+      tempUser.user?.getIdToken().then((token){
+        print('user token is: ${token}');
+      });
+
+    });
 
   }
 
   @override
   Widget build(BuildContext context) {
+    print("-----------------------------");
     return MaterialApp(
       title: "ADDDS Bluetooth App",
       home:Scaffold(
