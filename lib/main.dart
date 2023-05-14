@@ -19,13 +19,21 @@ battery level: 00002a19-0000-1000-8000-00805f9b34fb
 
 */
 
+import 'package:flutter/material.dart';
+
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:location_permissions/location_permissions.dart' as LocationPermissions;
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'firebase_options.dart';
+
+import 'google_clientId.dart';
+
 import 'dart:async';
 import 'dart:io' show Platform;
-
-import 'package:location_permissions/location_permissions.dart' as LocationPermissions;
-import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,7 +52,8 @@ class MyAppState extends State<MyApp>{
   bool _foundDeviceWaitingToConnect = false;
   bool _scanStarted = false;
   bool _connected = false;
-// Bluetooth related variables
+
+  // Bluetooth related variables
   late DiscoveredDevice _bluetoothDevice;
   final flutterReactiveBle = FlutterReactiveBle();
   late StreamSubscription<DiscoveredDevice> _scanStream;
@@ -57,6 +66,20 @@ class MyAppState extends State<MyApp>{
   String text = "No devices discovered yet";
   String text1 = "No device connected yet";
   String text2 = "No command sent yet";
+  String userIdText = "user ID";
+
+  late UserCredential globalUser;
+
+  @override
+  void initState() {
+    initializeFirebaseApp();
+  }
+
+  void initializeFirebaseApp() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async { // Works
@@ -196,6 +219,40 @@ class MyAppState extends State<MyApp>{
     }
   }
 
+  void signInWithGoogle() async {
+    // Trigger the authentication flow
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
+
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    print("-----------------");
+    print(googleUser);
+    print("-----------------");
+    print(googleAuth?.idToken);
+    print("-----------------");
+
+    // this code is not required for this application
+
+    //userIdText = googleAuth!.idToken!; // bang operator (!) tells flutter values will not be null
+
+    // // Create a new credential
+    // final credential = GoogleAuthProvider.credential(
+    //   accessToken: googleAuth?.accessToken,
+    //   idToken: googleAuth?.idToken,
+    // );
+
+    // await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
+    //   setState((){
+    //     globalUser = tempUser;
+    //     userIdText = globalUser?.additionalUserInfo?.profile!["id"];
+    //   });
+    // });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -227,6 +284,13 @@ class MyAppState extends State<MyApp>{
                 child: Text("Read Characteristic"),
               ),
               Text(text2),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: null,
+                onPressed: signInWithGoogle,
+                child: Text("Sign in with google"),
+              ),
+              Text(userIdText),
             ],
           ),
        )
