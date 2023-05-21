@@ -61,13 +61,19 @@ class MyAppState extends State<MyApp>{
   late QualifiedCharacteristic _rxCharacteristic;
   late QualifiedCharacteristic _rxCharacteristic1;
 
-  final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my battery service on my nuraphone. Change for pi
-  final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
-  
+  final Uuid serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // UUID for PI Gatt service
+  final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic (works!) 
+  final Uuid characteristicUuid1 = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // TX characterstic 
+  final String RPIName = "rpi-gatt-server";
+  // RPI device ID DC:A6:32:82:5A:50
+
+  // final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my battery service on my nuraphone. Change for pi
+  // final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
+
   String text = "No devices discovered yet";
   String text1 = "No device connected yet";
   String text2 = "No command sent yet";
-  String userIdText = "user ID";
+  String userIdText = "no user id yet";
 
   late UserCredential globalUser;
   late String JWT;
@@ -120,10 +126,10 @@ class MyAppState extends State<MyApp>{
       _scanStream = flutterReactiveBle
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
-            print("------------ Scanning for devices ------------------");
+            //print("------------ Scanning for devices ------------------");
             // change this TODO
             // change device name to device that will be seen on the Pi
-            if(device.name == "nuraphone 926"){ // if they're my nuraphones
+            if(device.name == "rpi-gatt-server"){ // If the device is the PI
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
 
@@ -135,21 +141,21 @@ class MyAppState extends State<MyApp>{
               }
 
               setState(() {
-                text = "Nuraphone service Found";
+                text = "RPI service Found!";
               });
             }
-            else{
+            // else{
 
-              print("Device Name: " + device.name);
-              print("Device ID: " + device.id);
-              for(var id in device.serviceUuids){
-                print("Service UUIDs: " + id.toString());
-              }
-              setState(() {
-                text = "A device has been discovered. Check terminal for details";
-              });
+            //   print("Device Name: " + device.name);
+            //   print("Device ID: " + device.id);
+            //   for(var id in device.serviceUuids){
+            //     print("Service UUIDs: " + id.toString());
+            //   }
+            //   setState(() {
+            //     text = "A device has been discovered. Check terminal for details";
+            //   });
 
-            }
+            // }
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
   }
@@ -162,7 +168,7 @@ class MyAppState extends State<MyApp>{
         .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
             id: _bluetoothDevice.id,
             prescanDuration: const Duration(seconds: 5),
-            withServices: [serviceUuid], // hardcoded to nuraphone service
+            withServices: [serviceUuid, characteristicUuid], // hardcoded to RPI
           );
     _currentConnectionStream.listen((event) {
       switch (event.connectionState) {
@@ -170,8 +176,12 @@ class MyAppState extends State<MyApp>{
         case DeviceConnectionState.connected:
           {
             _rxCharacteristic = QualifiedCharacteristic(
-                serviceId: serviceUuid, // battery service
-                characteristicId: characteristicUuid, // Battery level
+                serviceId: serviceUuid, // RPI gatt service
+                characteristicId: characteristicUuid, // 
+                deviceId: event.deviceId);
+            _rxCharacteristic1 = QualifiedCharacteristic(
+                serviceId: serviceUuid, // RPI gatt service
+                characteristicId: characteristicUuid1, // 
                 deviceId: event.deviceId);
             setState(() {
               text1 = "Connected to Device";
@@ -188,34 +198,66 @@ class MyAppState extends State<MyApp>{
             });
             break;
           }
-        default:
+        default: // none
       }
     });
   }
 
-  void _testRead() async{
+  void _testRead() async{ // dont need right now
     final response = await flutterReactiveBle.readCharacteristic(_rxCharacteristic);
+    final response2 = await flutterReactiveBle.readCharacteristic(_rxCharacteristic1);
 
     for(var i = 0; i < response.length; i++){
-      print("Battery level:" + response[i].toString());
+      print("Pi Characteristic ---------" + response[i].toString());
+    }
+
+    for(var i = 0; i < response2.length; i++){
+      print("Pi Characteristic ---------" + response2[i].toString());
     }
 
     setState((){
       text2 = "Read command sent";
     });
-  }
-  
 
-  void _testWrite(){
+  }
+
+  void _testWrite(){ // works
     if (_connected) {
 
+
+      String info = "This is a test1"; // works
+      List<int> testData1 = [];
+      
+      // String info1 = "This is a test2";
+      // List<int> testData2 = [];
+      
+      // String info2 = "This is a test3";
+      // List<int> testData3 = [];
+
+      // String info3 = "This is a test4";
+      // List<int> testData4 = [];
+
+      for(int i = 0; i < info.length; i++){
+        testData1.add(info.codeUnitAt(i));
+        // testData2.add(info1.codeUnitAt(i));
+        // testData3.add(info2.codeUnitAt(i));
+        // testData4.add(info3.codeUnitAt(i));
+      }
+
       flutterReactiveBle
-      .writeCharacteristicWithResponse(_rxCharacteristic, value: [
-        123,
-      ]);
+      .writeCharacteristicWithResponse(_rxCharacteristic, value: testData1); // Sends most consistently
+
+      // flutterReactiveBle.
+      // writeCharacteristicWithResponse(_rxCharacteristic, value: testData2); // sends rarely
+
+      // flutterReactiveBle
+      // .writeCharacteristicWithoutResponse(_rxCharacteristic, value: testData3); // sends rarely
+
+      // flutterReactiveBle.
+      // writeCharacteristicWithoutResponse(_rxCharacteristic, value: testData4); // sends sometimes
 
       setState(() {
-        text2 = "Command sent";
+        text2 = "Command sent!";
       });
 
     }
@@ -244,11 +286,14 @@ class MyAppState extends State<MyApp>{
 
     await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
-      // setState((){
-      //   globalUser = tempUser;
-      //   userIdText = globalUser.additionalUserInfo!.profile!["id"];
-      //   //userID is null and accessing it will throw a runtime error
-      // });
+      setState((){
+        print("-----1-----");
+        globalUser = tempUser;
+        print(globalUser);
+        print("-----2-----");
+        //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
+        print("-----3-----");
+      });
 
       tempUser.user?.getIdToken(true).then((token){
         JWT = token; // make token globally accessible
@@ -280,7 +325,7 @@ class MyAppState extends State<MyApp>{
               ElevatedButton(
                 style: null,
                 onPressed: _connectToDevice,
-                child: Text("Connect to nuraphone"),
+                child: Text("Connect to RPI"),
               ),
               Text(text1),
               const SizedBox(height: 30),
@@ -288,6 +333,12 @@ class MyAppState extends State<MyApp>{
                 style: null,
                 onPressed: _testRead,
                 child: Text("Read Characteristic"),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: null,
+                onPressed: _testWrite,
+                child: Text("Write Characteristic"),
               ),
               Text(text2),
               const SizedBox(height: 30),
@@ -303,5 +354,4 @@ class MyAppState extends State<MyApp>{
       )
     );
   }
-
 }
