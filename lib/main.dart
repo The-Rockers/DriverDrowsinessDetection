@@ -204,19 +204,21 @@ class MyAppState extends State<MyApp>{
   }
 
   void _testRead() async{ // dont need right now
-    final response = await flutterReactiveBle.readCharacteristic(_rxCharacteristic);
-    final response2 = await flutterReactiveBle.readCharacteristic(_rxCharacteristic1);
 
-    for(var i = 0; i < response.length; i++){
-      print("Pi Characteristic ---------" + response[i].toString());
-    }
+    flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic).listen((data) {
+      print("Info changed -------- :" + data.toString());
+    }, onError: (dynamic error) {
+      print("Reading error -------------: ");
+    });
 
-    for(var i = 0; i < response2.length; i++){
-      print("Pi Characteristic ---------" + response2[i].toString());
-    }
+    flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic1).listen((data) {
+      print("Info changed -------- :" + data.toString());
+    }, onError: (dynamic error) {
+      print("Reading error -------------: ");
+    });
 
     setState((){
-      text2 = "Read command sent";
+      text2 = "Subscribed to characterstics";
     });
 
   }
@@ -224,37 +226,17 @@ class MyAppState extends State<MyApp>{
   void _testWrite(){ // works
     if (_connected) {
 
-
       String info = "This is a test1"; // works
       List<int> testData1 = [];
-      
-      // String info1 = "This is a test2";
-      // List<int> testData2 = [];
-      
-      // String info2 = "This is a test3";
-      // List<int> testData3 = [];
-
-      // String info3 = "This is a test4";
-      // List<int> testData4 = [];
 
       for(int i = 0; i < info.length; i++){
         testData1.add(info.codeUnitAt(i));
-        // testData2.add(info1.codeUnitAt(i));
-        // testData3.add(info2.codeUnitAt(i));
-        // testData4.add(info3.codeUnitAt(i));
       }
 
       flutterReactiveBle
       .writeCharacteristicWithResponse(_rxCharacteristic, value: testData1); // Sends most consistently
 
-      // flutterReactiveBle.
-      // writeCharacteristicWithResponse(_rxCharacteristic, value: testData2); // sends rarely
-
-      // flutterReactiveBle
-      // .writeCharacteristicWithoutResponse(_rxCharacteristic, value: testData3); // sends rarely
-
-      // flutterReactiveBle.
-      // writeCharacteristicWithoutResponse(_rxCharacteristic, value: testData4); // sends sometimes
+      // Write charactertistic without response sends sometimes
 
       setState(() {
         text2 = "Command sent!";
