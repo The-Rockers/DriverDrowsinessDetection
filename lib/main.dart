@@ -32,7 +32,6 @@ import 'firebase_options.dart';
 
 import 'google_clientId.dart';
 
-import 'dart:developer'; // for printing JWT to console
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -50,6 +49,7 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp>{
 
   // Some state management stuff
+  
   bool _foundDeviceWaitingToConnect = false;
   bool _scanStarted = false;
   bool _connected = false;
@@ -60,6 +60,7 @@ class MyAppState extends State<MyApp>{
   late StreamSubscription<DiscoveredDevice> _scanStream;
   late QualifiedCharacteristic _rxCharacteristic;
   late QualifiedCharacteristic _rxCharacteristic1;
+  bool isSubscribed = false;
 
   final Uuid serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // UUID for PI Gatt service
   final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic (works!) 
@@ -144,18 +145,6 @@ class MyAppState extends State<MyApp>{
                 text = "RPI service Found!";
               });
             }
-            // else{
-
-            //   print("Device Name: " + device.name);
-            //   print("Device ID: " + device.id);
-            //   for(var id in device.serviceUuids){
-            //     print("Service UUIDs: " + id.toString());
-            //   }
-            //   setState(() {
-            //     text = "A device has been discovered. Check terminal for details";
-            //   });
-
-            // }
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
   }
@@ -205,17 +194,28 @@ class MyAppState extends State<MyApp>{
 
   void _testRead() async{ // dont need right now
 
-    flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic).listen((data) {
-      print("Info changed -------- :" + data.toString());
-    }, onError: (dynamic error) {
-      print("Reading error -------------: ");
-    });
+    // flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic).listen((data) {
+    //   print("Info changed ----0---- :" + data.toString());
+    // }, onError: (dynamic error) {
+    //   print("Reading error -------------: ");
+    // });
 
-    flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic1).listen((data) {
-      print("Info changed -------- :" + data.toString());
-    }, onError: (dynamic error) {
-      print("Reading error -------------: ");
-    });
+    if(!isSubscribed){
+
+      flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic1).listen((data) {
+
+        String response = '';
+
+        data.forEach((value) => {response += String.fromCharCode(value)});
+        print("Info changed (interpreted) : " + response);
+
+      }, onError: (dynamic error) {
+        print("Reading error");
+      });
+
+      isSubscribed = true;
+
+    }
 
     setState((){
       text2 = "Subscribed to characterstics";
@@ -226,7 +226,7 @@ class MyAppState extends State<MyApp>{
   void _testWrite(){ // works
     if (_connected) {
 
-      String info = "This is a test1"; // works
+      String info = "This is a test string!"; // works
       List<int> testData1 = [];
 
       for(int i = 0; i < info.length; i++){
@@ -241,6 +241,23 @@ class MyAppState extends State<MyApp>{
       setState(() {
         text2 = "Command sent!";
       });
+
+    }
+  }
+
+    void _Write(String payload){ // works
+    if (_connected) {
+
+      List<int> data = [];
+
+      for(int i = 0; i < payload.length; i++){
+        data.add(payload.codeUnitAt(i));
+      }
+
+      flutterReactiveBle
+      .writeCharacteristicWithResponse(_rxCharacteristic, value: data); // Sends most consistently
+
+      // Write charactertistic without response sends sometime
 
     }
   }
@@ -269,16 +286,35 @@ class MyAppState extends State<MyApp>{
     await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
       setState((){
-        print("-----1-----");
+        // print("-----1-----");
         globalUser = tempUser;
-        print(globalUser);
-        print("-----2-----");
-        //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
-        print("-----3-----");
+        // print(globalUser);
+        // print("-----2-----");
+        // //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
+        // print("-----3-----");
       });
 
       tempUser.user?.getIdToken(true).then((token){
         JWT = token; // make token globally accessible
+
+        String testData = "Token should be sent here! Testing with an extremely large string. This is a new payload!";
+
+        _Write("JTW payload: ");
+
+        for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
+
+          int end = i + 350;
+
+          if(end > token.length){
+            end = token.length;
+          }
+
+          _Write(token.substring(i,end));
+
+        }
+
+        _Write("JWT payload sent");
+
         printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
       });
 
