@@ -1,24 +1,6 @@
 // https://www.ubiqueiot.com/posts/flutter-reactive-ble
 // Tutorial Reference
 
-/*
-
-I/flutter (18362): Device: nuraphone 926
-I/flutter (18362): Device ID: 74:1A:E0:21:17:C0
-I/flutter (18362): Device UUIDs: 0000180f-0000-1000-8000-00805f9b34fb
-
-*/
-
-/*
-
-A certain number of characteristic UUIDs as provided by:
-https://asteroidos.org/wiki/ble-profiles/#:~:text=many%20other%20devices.-,Battery%20Service%20(UUID%3A%200000180F%2D0000,%2D1000%2D8000%2D00805f9b34fb)&text=This%20characteristic%20can%20be%20read,representing%20the%20current%20battery%20level.
-
-Volume: 00007006-0000-0000-0000-00A57E401D05
-battery level: 00002a19-0000-1000-8000-00805f9b34fb
-
-*/
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
@@ -59,20 +41,18 @@ class MyAppState extends State<MyApp>{
   final flutterReactiveBle = FlutterReactiveBle();
   late StreamSubscription<DiscoveredDevice> _scanStream;
   late QualifiedCharacteristic _rxCharacteristic;
-  late QualifiedCharacteristic _rxCharacteristic1;
+  late QualifiedCharacteristic _txCharacteristic1;
   bool isSubscribed = false;
 
   final Uuid serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // UUID for PI Gatt service
-  final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic (works!) 
-  final Uuid characteristicUuid1 = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // TX characterstic 
+  final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic (Works!) 
+  final Uuid characteristicUuid1 = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // TX characterstic (Works)
   final String RPIName = "rpi-gatt-server";
   // RPI device ID DC:A6:32:82:5A:50
 
-  // final Uuid serviceUuid = Uuid.parse("0000180f-0000-1000-8000-00805f9b34fb"); // Uuid of my battery service on my nuraphone. Change for pi
-  // final Uuid characteristicUuid = Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb"); // Battery level characteristic UUID
-
   String text = "No devices discovered yet";
   String text1 = "No device connected yet";
+  String text3 = "Not yet listening to pi data";
   String text2 = "No command sent yet";
   String userIdText = "no user id yet";
 
@@ -128,8 +108,6 @@ class MyAppState extends State<MyApp>{
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
             //print("------------ Scanning for devices ------------------");
-            // change this TODO
-            // change device name to device that will be seen on the Pi
             if(device.name == "rpi-gatt-server"){ // If the device is the PI
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
@@ -150,7 +128,6 @@ class MyAppState extends State<MyApp>{
   }
 
   void _connectToDevice() {
-    // We're done scanning, we can cancel it
     _scanStream.cancel();
     // Let's listen to our connection so we can make updates on a state change
     Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle
@@ -161,16 +138,16 @@ class MyAppState extends State<MyApp>{
           );
     _currentConnectionStream.listen((event) {
       switch (event.connectionState) {
-        // We're connected and good to go!
+
         case DeviceConnectionState.connected:
           {
-            _rxCharacteristic = QualifiedCharacteristic(
+            _rxCharacteristic = QualifiedCharacteristic( // Rx
                 serviceId: serviceUuid, // RPI gatt service
                 characteristicId: characteristicUuid, // 
                 deviceId: event.deviceId);
-            _rxCharacteristic1 = QualifiedCharacteristic(
-                serviceId: serviceUuid, // RPI gatt service
-                characteristicId: characteristicUuid1, // 
+            _txCharacteristic1 = QualifiedCharacteristic( // Tx
+                serviceId: serviceUuid,
+                characteristicId: characteristicUuid1,
                 deviceId: event.deviceId);
             setState(() {
               text1 = "Connected to Device";
@@ -179,7 +156,6 @@ class MyAppState extends State<MyApp>{
             });
             break;
           }
-        // Can add various state state updates on disconnect
         case DeviceConnectionState.disconnected:
           {
             setState(() {
@@ -192,22 +168,16 @@ class MyAppState extends State<MyApp>{
     });
   }
 
-  void _testRead() async{ // dont need right now
-
-    // flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic).listen((data) {
-    //   print("Info changed ----0---- :" + data.toString());
-    // }, onError: (dynamic error) {
-    //   print("Reading error -------------: ");
-    // });
+  void _Read() async{
 
     if(!isSubscribed){
 
-      flutterReactiveBle.subscribeToCharacteristic(_rxCharacteristic1).listen((data) {
+      flutterReactiveBle.subscribeToCharacteristic(_txCharacteristic1).listen((data) {
 
         String response = '';
 
         data.forEach((value) => {response += String.fromCharCode(value)});
-        print("Info changed (interpreted) : " + response);
+        print("Pi : " + response);
 
       }, onError: (dynamic error) {
         print("Reading error");
@@ -218,7 +188,7 @@ class MyAppState extends State<MyApp>{
     }
 
     setState((){
-      text2 = "Subscribed to characterstics";
+      text3 = "Listening to Pi Data!";
     });
 
   }
@@ -236,8 +206,6 @@ class MyAppState extends State<MyApp>{
       flutterReactiveBle
       .writeCharacteristicWithResponse(_rxCharacteristic, value: testData1); // Sends most consistently
 
-      // Write charactertistic without response sends sometimes
-
       setState(() {
         text2 = "Command sent!";
       });
@@ -245,7 +213,7 @@ class MyAppState extends State<MyApp>{
     }
   }
 
-    void _Write(String payload){ // works
+  void _Write(String payload){ // works
     if (_connected) {
 
       List<int> data = [];
@@ -257,14 +225,19 @@ class MyAppState extends State<MyApp>{
       flutterReactiveBle
       .writeCharacteristicWithResponse(_rxCharacteristic, value: data); // Sends most consistently
 
-      // Write charactertistic without response sends sometime
-
     }
   }
 
-  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
-    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
-    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  void startDetection(){
+    _Write("-Start Detection-");
+  }
+
+  void stopDetection(){
+    _Write("-Stop Detection-");
+  }
+
+  void downloadNewModel(){
+    _Write("-Download New Model-");
   }
 
   void signInWithGoogle() async {
@@ -286,12 +259,8 @@ class MyAppState extends State<MyApp>{
     await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
       setState((){
-        // print("-----1-----");
         globalUser = tempUser;
-        // print(globalUser);
-        // print("-----2-----");
         // //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
-        // print("-----3-----");
       });
 
       tempUser.user?.getIdToken(true).then((token){
@@ -299,7 +268,7 @@ class MyAppState extends State<MyApp>{
 
         String testData = "Token should be sent here! Testing with an extremely large string. This is a new payload!";
 
-        _Write("JTW payload: ");
+        _Write("-_ JWT _-");
 
         for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
 
@@ -313,13 +282,18 @@ class MyAppState extends State<MyApp>{
 
         }
 
-        _Write("JWT payload sent");
+        _Write("-_ JWT _-");
 
         printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
       });
 
     });
 
+  }
+
+  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
   }
 
   @override
@@ -349,21 +323,34 @@ class MyAppState extends State<MyApp>{
               const SizedBox(height: 30),
               ElevatedButton(
                 style: null,
-                onPressed: _testRead,
-                child: Text("Read Characteristic"),
+                onPressed: _Read,
+                child: Text("Listen to incomming data"),
               ),
+              Text(text3),
               const SizedBox(height: 30),
               ElevatedButton(
                 style: null,
-                onPressed: _testWrite,
-                child: Text("Write Characteristic"),
+                onPressed: startDetection,
+                child: Text("Start Drowsiness detection"),
               ),
               Text(text2),
               const SizedBox(height: 30),
               ElevatedButton(
                 style: null,
+                onPressed: stopDetection,
+                child: Text("Stop Drowsiness detection"),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: null,
+                onPressed: downloadNewModel,
+                child: Text("Download New Model"),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: null,
                 onPressed: signInWithGoogle,
-                child: Text("Sign in with google"),
+                child: Text("Sign in and send data to backend"),
               ),
               Text(userIdText),
             ],
