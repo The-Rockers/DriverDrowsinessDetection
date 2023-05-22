@@ -179,6 +179,10 @@ class MyAppState extends State<MyApp>{
         data.forEach((value) => {response += String.fromCharCode(value)});
         print("Pi : " + response);
 
+      setState((){
+        text3 = "${response}";
+      });
+
       }, onError: (dynamic error) {
         print("Reading error");
       });
