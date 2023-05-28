@@ -37,17 +37,17 @@ class MyAppState extends State<MyApp>{
   bool _connected = false;
 
   // Bluetooth related variables
-  late DiscoveredDevice _bluetoothDevice;
   final flutterReactiveBle = FlutterReactiveBle();
+  late DiscoveredDevice _bluetoothDevice;
   late StreamSubscription<DiscoveredDevice> _scanStream;
   late QualifiedCharacteristic _rxCharacteristic;
-  late QualifiedCharacteristic _txCharacteristic1;
+  late QualifiedCharacteristic _txCharacteristic;
   bool isSubscribed = false;
 
   final Uuid serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // UUID for PI Gatt service
-  final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic (Works!) 
-  final Uuid characteristicUuid1 = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // TX characterstic (Works)
-  final String RPIName = "rpi-gatt-server";
+  final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic
+  final Uuid characteristicUuid1 = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // TX characterstic
+  final String RPIName = "rpi-gatt-server"; // Name of RPI gatt service
   // RPI device ID DC:A6:32:82:5A:50
 
   String text = "No devices discovered yet";
@@ -72,7 +72,7 @@ class MyAppState extends State<MyApp>{
 
   //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async { // Works
-    // Platform permissions handling stuff
+
     bool permGranted = false;
     setState(() {
       _scanStarted = true;
@@ -88,6 +88,9 @@ class MyAppState extends State<MyApp>{
       /*
       For some reason, bluetooth scanning won't work unless location
       is on and paermissions are granted. No idea why.
+
+      I need to determine which of these requests are required and which
+      are not. It's relatively ambiguous at the moment.
       */
 
       bluetoothConnectPermission = await Permission.bluetoothConnect.request();
@@ -97,8 +100,6 @@ class MyAppState extends State<MyApp>{
 
       if (locationPermission == LocationPermissions.PermissionStatus.granted) permGranted = true;
 
-      //permGranted = true;
-
     } else if (Platform.isIOS) {
       permGranted = true;
     }
@@ -107,7 +108,6 @@ class MyAppState extends State<MyApp>{
       _scanStream = flutterReactiveBle
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
-            //print("------------ Scanning for devices ------------------");
             if(device.name == "rpi-gatt-server"){ // If the device is the PI
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
@@ -123,6 +123,7 @@ class MyAppState extends State<MyApp>{
                 text = "RPI service Found!";
               });
             }
+
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
   }
@@ -145,7 +146,7 @@ class MyAppState extends State<MyApp>{
                 serviceId: serviceUuid, // RPI gatt service
                 characteristicId: characteristicUuid, // 
                 deviceId: event.deviceId);
-            _txCharacteristic1 = QualifiedCharacteristic( // Tx
+            _txCharacteristic = QualifiedCharacteristic( // Tx
                 serviceId: serviceUuid,
                 characteristicId: characteristicUuid1,
                 deviceId: event.deviceId);
@@ -172,16 +173,17 @@ class MyAppState extends State<MyApp>{
 
     if(!isSubscribed){
 
-      flutterReactiveBle.subscribeToCharacteristic(_txCharacteristic1).listen((data) {
+      flutterReactiveBle.subscribeToCharacteristic(_txCharacteristic).listen((data) {
 
         String response = '';
 
         data.forEach((value) => {response += String.fromCharCode(value)});
+
         print("Pi : " + response);
 
-      setState((){
-        text3 = "${response}";
-      });
+        setState((){
+          text3 = "${response}";
+        });
 
       }, onError: (dynamic error) {
         print("Reading error");
@@ -197,25 +199,25 @@ class MyAppState extends State<MyApp>{
 
   }
 
-  void _testWrite(){ // works
-    if (_connected) {
+  // void _testWrite(){ // works
+  //   if (_connected) {
 
-      String info = "This is a test string!"; // works
-      List<int> testData1 = [];
+  //     String info = "This is a test string!"; // works
+  //     List<int> testData1 = [];
 
-      for(int i = 0; i < info.length; i++){
-        testData1.add(info.codeUnitAt(i));
-      }
+  //     for(int i = 0; i < info.length; i++){
+  //       testData1.add(info.codeUnitAt(i));
+  //     }
 
-      flutterReactiveBle
-      .writeCharacteristicWithResponse(_rxCharacteristic, value: testData1); // Sends most consistently
+  //     flutterReactiveBle
+  //     .writeCharacteristicWithResponse(_rxCharacteristic, value: testData1); // Sends most consistently
 
-      setState(() {
-        text2 = "Command sent!";
-      });
+  //     setState(() {
+  //       text2 = "Command sent!";
+  //     });
 
-    }
-  }
+  //   }
+  // }
 
   void _Write(String payload){ // works
     if (_connected) {
@@ -244,6 +246,11 @@ class MyAppState extends State<MyApp>{
     _Write("-Download New Model-");
   }
 
+  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
   void signInWithGoogle() async {
     // Trigger the authentication flow
 
@@ -270,8 +277,6 @@ class MyAppState extends State<MyApp>{
       tempUser.user?.getIdToken(true).then((token){
         JWT = token; // make token globally accessible
 
-        String testData = "Token should be sent here! Testing with an extremely large string. This is a new payload!";
-
         _Write("-_ JWT _-");
 
         for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
@@ -288,16 +293,11 @@ class MyAppState extends State<MyApp>{
 
         _Write("-_ JWT _-");
 
-        printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
+        // printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
       });
 
     });
 
-  }
-
-  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
-    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
-    pattern.allMatches(text).forEach((match) => print(match.group(0)));
   }
 
   @override
@@ -305,7 +305,6 @@ class MyAppState extends State<MyApp>{
     return MaterialApp(
       title: "ADDDS Bluetooth App",
       home:Scaffold(
-        //body: Center(child: Text("Test")),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
