@@ -103,7 +103,7 @@ class DriverDrowsinessDataset:
         """
         retrieves all the data in the form of a dictionary mapping image names to
         their corresponding labels
-        format: {image_name: (image, label)}
+        format: {frame_number: (frame,label),...}
         """
         img_label_data = {}
         # get a list of all files in the folder that ends with .avi
@@ -118,7 +118,9 @@ class DriverDrowsinessDataset:
             return False
         else:
             print(f"Found {blob_count} video files in the bucket.")
-
+            
+        global_frame_number = 0
+        
         for blob in blobs:
             print(f"Processing video file {blob.name}...{blob_count} more to go")
             # Download the video to a temporary file
@@ -136,8 +138,9 @@ class DriverDrowsinessDataset:
                 print(f"Processing frame {frame_number}...")
 
                 # Save the frame in a dictionary
-                img_label_data[frame_number] = (frame, labels[frame_number])
+                img_label_data[global_frame_number] = (frame, labels[frame_number])
                 frame_number += 1
+                global_frame_number += 1
 
             # Clean up
             video_file.close()
