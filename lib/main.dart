@@ -155,6 +155,7 @@ class MyAppState extends State<MyApp>{
               _foundDeviceWaitingToConnect = false;
               _connected = true;
             });
+            _Read();
             break;
           }
         case DeviceConnectionState.disconnected:
