@@ -32,7 +32,8 @@ async function verifyIdToken(idToken) {
 
   try{
     const payload = await firebaseAdmin.auth().verifyIdToken(idToken);
-    console.log(payload);
+    // console.log(payload);
+    return payload;
   } catch (error){
     console.error('Error verifying ID token:', error);
     return null;
@@ -40,30 +41,30 @@ async function verifyIdToken(idToken) {
 
 }
 
-// REMOVE : Testing JWT functionality
-
-app.get('/testing', async (req,res)  => { // method to test JWT verification
-  // /testing?jwt={idTokenHere}
-  
-  let idToken = req.query.jwt; // in practice, the JWT will be sent in the header of the request
-  const uid = await verifyIdToken(idToken);
-  
-  res.status(200).send("ok");
-
-});
-
-//////////////////////////////////////////////////////
-
 app.get('/', (req, res) => {
   console.log("Hello, Team!");
   res.status(200).send('Hello, Team!').end();
 });
 
 app.get('/data/getLists', async (req,res)=>{
-  // /data/getLists?userId=100242345133661897540 (example route)
+  // /data/getLists?userId=KlbEZkEFuxZqbY3qPijHdrROeks1 (example route)
+
+  /*
+    Note that the userId must be specified in the http request AND in a 
+    JWT must be included in the header of the http request in the format
+    of {"JWT": '{insert-JWT-here}' }
+  */
+
+  let jwt = req.headers.jwt;
+  let payload = await verifyIdToken(jwt);
+  let uid = payload.uid;
 
   if(!req.query.userId){
-    res.status(404).send("Invalid userID");
+    res.status(403).send("Invalid userID");
+    return;
+  }
+  else if(req.query.userId != uid){
+    res.status(403).send("userId and JWT mismatch. Authentication failed!");
     return;
   }
   else{
@@ -71,8 +72,8 @@ app.get('/data/getLists', async (req,res)=>{
     let userId = req.query.userId;
     let videoFiles = [];
     let predictionFiles = [];
-    let userVidDest = `users/${userId}/prediction_data/`;
-    let userPredDest = `users/${userId}/video_data/`;
+    let userVidDest = `users/${userId}/video_data/`;
+    let userPredDest = `users/${userId}/prediction_data/`;
 
     let JSONResponse = `'{"videoFiles":[`;
   
@@ -132,9 +133,28 @@ app.get('/data/getLists', async (req,res)=>{
 
 });
 
-app.post('/data/send', (req,res)=>{
+app.post('/data/send', async (req,res)=> {
 
-  // /data/send?userId=100242345133661897540&type=csv (example endpoint request)
+  // /data/send?userId=KlbEZkEFuxZqbY3qPijHdrROeks1&type=csv (example endpoint request)
+
+  /*
+    Note that the userId must be specified in the http request AND in a 
+    JWT must be included in the header of the http request in the format
+    of {"JWT": '{insert-JWT-here}' }
+  */
+
+  let jwt = req.headers.jwt;
+  let payload = await verifyIdToken(jwt);
+  let uid = payload.uid;
+
+  if(!req.query.userId){
+    res.status(403).send("Invalid userID");
+    return;
+  }
+  else if(req.query.userId != uid){
+    res.status(403).send("userId and JWT mismatch. Authentication failed!");
+    return;
+  }
 
   const queryData = url.parse(req.url, true).query;
 
