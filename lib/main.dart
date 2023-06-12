@@ -56,7 +56,7 @@ class MyAppState extends State<MyApp>{
   String text2 = "No command sent yet";
   String userIdText = "no user id yet";
 
-  late UserCredential globalUser;
+  late UserCredential? globalUser;
   late String JWT;
 
   @override
@@ -294,9 +294,20 @@ class MyAppState extends State<MyApp>{
 
         _Write("-_ JWT _-");
 
-        // printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
+        printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
       });
 
+    });
+
+  }
+
+  void signOut() async {
+
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
+    await googleSignIn.signOut();
+
+    setState((){
+      globalUser = null;
     });
 
   }
@@ -357,6 +368,11 @@ class MyAppState extends State<MyApp>{
                 child: Text("Sign in and send data to backend"),
               ),
               Text(userIdText),
+              ElevatedButton(
+                style: null,
+                onPressed: signOut,
+                child: Text("Sign out"),
+              ),
             ],
           ),
        )
