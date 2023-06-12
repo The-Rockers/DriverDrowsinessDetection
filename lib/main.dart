@@ -50,7 +50,7 @@ class MyAppState extends State<MyApp> {
   List<DrowsinessData> userDrowsinessData = mockData; // initiaize to mock data for the time being
 
   late UserCredential? globalUser = null;
-  String globalUserId = ""; // 100242345133661897540 | KlbEZkEFuxZqbY3qPijHdrROeks1 userID for which there is currently data in firestore (my umich acc ID)
+  String globalUserId = ""; // 100242345133661897540 userID for which there is currently data in firestore (my umich acc ID)
   late bool doesUserHaveData = true; // default to true and show mock data to user
 
   void modifyCurrentWeekRange() {
@@ -130,7 +130,7 @@ class MyAppState extends State<MyApp> {
 
     //   List<String> fileList = <String>['Excel', 'CSV', 'Parquet'];
 
-    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=KlbEZkEFuxZqbY3qPijHdrROeks1&type=csv // example
+    // https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540&type=csv // example
     String url = 'https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=${globalUserId}&type=${type}';
     String responseURL;
 
@@ -168,7 +168,7 @@ class MyAppState extends State<MyApp> {
 
    void signInWithGoogle() async {
     // Trigger the authentication flow
-    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientID);
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
@@ -183,18 +183,12 @@ class MyAppState extends State<MyApp> {
 
     await FirebaseAuth.instance.signInWithCredential(credential).then((tempUser){
 
-      // print("----------");
-      // print(tempUser);
-      // print("----------");
-      // tempUser contains UID which is the same ID which is gathered from JWT
-
       setState((){
         globalUser = tempUser;
-        globalUserId = globalUser!.user!.uid; // different UID to work with JWT
-        //globalUserId = globalUser?.additionalUserInfo?.profile!["id"]; // old UID that does not work with JWT
+        globalUserId = globalUser?.additionalUserInfo?.profile!["id"];
       });
 
-      getFirestoreData();
+        getFirestoreData();
 
     });
 
