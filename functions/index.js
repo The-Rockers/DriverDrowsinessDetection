@@ -1,6 +1,6 @@
 // ?id={googleUser ID}&type={fileType} // API request query format
-// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=100242345133661897540&type=csv // production example
-// http://127.0.0.1:5001/antisomnus-381222/us-central1/exportUserData?id=100242345133661897540&type=csv // local
+// https://us-central1-antisomnus-381222.cloudfunctions.net/exportUserData?id=KlbEZkEFuxZqbY3qPijHdrROeks1&type=csv // production example
+// http://127.0.0.1:5001/antisomnus-381222/us-central1/exportUserData?id=KlbEZkEFuxZqbY3qPijHdrROeks1&type=csv // local
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 const functions = require('firebase-functions');
@@ -269,7 +269,7 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
     res.set('Access-Control-Allow-Origin', '*'); // set access control so all sites can call API without receiving CORS errors
 
     // firebase emulator test ID: pDElawFtvufKVcfItl6m
-    let monthsDataKeys; // A list of keys for the doc.data() objects returnes
+    let monthsDataKeys; // A list of keys for the doc.data() objects returns
     let monthsString = ``;
     let monthsDataString = ``;
     let monthCount = -1; // keep index for months
