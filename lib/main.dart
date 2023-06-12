@@ -55,6 +55,7 @@ class MyAppState extends State<MyApp>{
   String text3 = "Not yet listening to pi data";
   String text2 = "No command sent yet";
   String userIdText = "no user id yet";
+  String piResponseText = "";
 
   late UserCredential? globalUser;
   late String JWT;
@@ -183,7 +184,7 @@ class MyAppState extends State<MyApp>{
         print("Pi : " + response);
 
         setState((){
-          text3 = "${response}";
+          piResponseText += "Pi: ${response}\n";
         });
 
       }, onError: (dynamic error) {
@@ -318,62 +319,66 @@ class MyAppState extends State<MyApp>{
       title: "ADDDS Bluetooth App",
       home:Scaffold(
         body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: _startScan,
-                child: Text("Start Scan"),
-              ),
-              Text(text),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: _connectToDevice,
-                child: Text("Connect to RPI"),
-              ),
-              Text(text1),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: _Read,
-                child: Text("Listen to incomming data"),
-              ),
-              Text(text3),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: startDetection,
-                child: Text("Start Drowsiness detection"),
-              ),
-              Text(text2),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: stopDetection,
-                child: Text("Stop Drowsiness detection"),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: downloadNewModel,
-                child: Text("Download New Model"),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: null,
-                onPressed: signInWithGoogle,
-                child: Text("Sign in and send data to backend"),
-              ),
-              Text(userIdText),
-              ElevatedButton(
-                style: null,
-                onPressed: signOut,
-                child: Text("Sign out"),
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: _startScan,
+                  child: Text("Start Scan"),
+                ),
+                Text(text),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: _connectToDevice,
+                  child: Text("Connect to RPI"),
+                ),
+                Text(text1),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: _Read,
+                  child: Text("Listen to incomming data"),
+                ),
+                Text(text3),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: startDetection,
+                  child: Text("Start Drowsiness detection"),
+                ),
+                Text(text2),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: stopDetection,
+                  child: Text("Stop Drowsiness detection"),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: downloadNewModel,
+                  child: Text("Download New Model"),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  style: null,
+                  onPressed: signInWithGoogle,
+                  child: Text("Sign in and send data to backend"),
+                ),
+                Text(userIdText),
+                ElevatedButton(
+                  style: null,
+                  onPressed: signOut,
+                  child: Text("Sign out"),
+                ),
+                const SizedBox(height: 30),
+                Text(piResponseText),
+              ],
+            ),
           ),
        )
       )
