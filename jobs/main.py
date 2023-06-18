@@ -86,7 +86,6 @@ def video_to_frames(bucket_name,blob_name,user_id,frame_dict={},frame_number=0):
         frame_number += 1
 
     cap.release()
-    cv2.destroyAllWindows()
 
     # Remove the processed video file from the local file system
     os.remove(filename)
