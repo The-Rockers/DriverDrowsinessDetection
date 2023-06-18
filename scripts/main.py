@@ -15,7 +15,7 @@ def trigger_on_upload(data, context):
     print(f"File {file_name} uploaded to {bucket_name}.")
 
     # Replace with the URL of your Cloud Run service
-    cloud_run_url = 'https://antisomnus-process-m3csmfreoa-uc.a.run.app'
+    cloud_run_url = 'https://antisomnus-m3csmfreoa-uc.a.run.app'
 
     r = requests.post(
         cloud_run_url, 
