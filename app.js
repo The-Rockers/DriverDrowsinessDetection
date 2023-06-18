@@ -152,7 +152,7 @@ app.post('/data/send', async (req,res)=> {
     return;
   }
   else if(req.query.userId != uid){
-    res.status(403).send("userId and JWT mismatch. Authentication failed!");
+    res.status(401).send("userId and JWT mismatch. Authentication failed!");
     return;
   }
 
@@ -160,7 +160,7 @@ app.post('/data/send', async (req,res)=> {
 
   if(Object.keys(queryData).length != 2){
 
-    res.status(404).send("Error: Incorrect number of params in query. Expected format \"?userId={userID}&type={fileType}\"");
+    res.status(401).send("Error: Incorrect number of params in query. Expected format \"?userId={userID}&type={fileType}\"");
     return;
 
   }
@@ -178,8 +178,11 @@ app.post('/data/send', async (req,res)=> {
     else if(fileType === "AVI" || fileType === "MP4"){ // Will only accept AVI and MP4 files for prediction data
       type = "video_data";
     }
+    else if(fileType === "TXT"){
+      type = "video_data"; // send t0 video data directory to trigger cloud run process
+    }
     else{
-      res.status(404).send("Error: Unsupported file format " + fileType);
+      res.status(400).send("Error: Unsupported file format " + fileType);
       return;
     }
 
