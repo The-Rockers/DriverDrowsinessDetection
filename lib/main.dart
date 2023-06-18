@@ -246,7 +246,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void populateDrowsinessDataList(){ // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
+  void populateDrowsinessDataList() { // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
 
     if(fireStoreDocs.length == 0){
       print("There was no data found for this user! ---------");
