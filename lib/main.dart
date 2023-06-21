@@ -23,18 +23,7 @@ import 'login_page.dart';
 import 'scan_home_page.dart';
 
 void main() {
-  // runApp (const MyApp());
-
-  runApp(
-    MaterialApp(
-      title: "ADDDS Bluetooth App",
-      home:MyApp(),
-      routes: <String, WidgetBuilder>{
-        "/bluetoothPage" : (BuildContext context) => new BluetoothPage(startDetection: MyAppState.selectStartDetection, stopDetection: MyAppState.selectStopDetection, piResponseText: MyAppState.piResponseText),
-      },
-    )
-  );
-
+   runApp (const MyApp());  
 }
 
 class MyApp extends StatefulWidget {
@@ -49,14 +38,14 @@ class MyAppState extends State<MyApp> {
 
   bool _foundDeviceWaitingToConnect = false;
   bool _scanStarted = false;
-  static bool _connected = false;
+  bool _connected = false;
   bool _connecting = false;
 
   // Bluetooth related variables
-  static final flutterReactiveBle = FlutterReactiveBle();
+  final flutterReactiveBle = FlutterReactiveBle();
   late DiscoveredDevice _bluetoothDevice;
   late StreamSubscription<DiscoveredDevice> _scanStream;
-  static late QualifiedCharacteristic _rxCharacteristic;
+  late QualifiedCharacteristic _rxCharacteristic;
   late QualifiedCharacteristic _txCharacteristic;
   bool isSubscribed = false;
 
@@ -71,7 +60,7 @@ class MyAppState extends State<MyApp> {
   String text3 = "Not yet listening to pi data";
   String text2 = "No command sent yet";
   String userIdText = "no user id yet";
-  static String piResponseText = "";
+  String piResponseText = "";
   String connectionStatusText = "";
 
   late UserCredential? globalUser = null;
@@ -79,7 +68,7 @@ class MyAppState extends State<MyApp> {
   bool isUserLoggedIn = false;
 
   BuildContext? mainBuildContext;
-  static late State<MyApp> myAppState;
+  late State<MyApp> myAppState;
 
     @override
   void initState() {
@@ -301,7 +290,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  static void _Write(String payload){ // works
+  void _Write(String payload){ // works
 
     print("Writing: " + payload);
 
@@ -319,24 +308,26 @@ class MyAppState extends State<MyApp> {
     }
   }
 
-  static void startDetection(){
+  void startDetection(){
     
-    // myAppState.setState((){
-    //   piResponseText = "testing123!";
-    // });
+    setState((){
+      piResponseText = "testing123!";
+    });
+
+    Navigator.of(mainBuildContext!).pop();
 
     _Write("-Start Detection-");
   }
 
-  static void Function() selectStartDetection(){
+  void Function() selectStartDetection(){
     return startDetection;
   }
 
-  static void stopDetection(){
+  void stopDetection(){
     _Write("-Stop Detection-");
   }
 
-  static void Function() selectStopDetection(){
+  void Function() selectStopDetection(){
     return stopDetection;
   }
 
@@ -365,27 +356,21 @@ class MyAppState extends State<MyApp> {
   }
 
   @override
-  Widget build(BuildContext mainContext) {
-
-  // myAppState = mainContext.findAncestorStateOfType<MyAppState>()!;
-
-    return Scaffold (
-      body: Builder(
-        builder: (context){
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "ADDDS Bluetooth App",
+      // home:ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText),
+      home: Builder(
+        builder: (BuildContext context) {
           mainBuildContext = context;
-          return Scaffold(
-            body: Center(
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    // LoginPage(signIn:selectSignInWithGoogle, signOut:selectSignOut),
-                    ScanHomePage(scan: selectStartScan, connectionStatusText:connectionStatusText),
-                  ],
-                ),
-           )
-         );
-       }
-      )
+          return ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText);
+        },
+      ),
+      routes: <String, WidgetBuilder>{
+        "/bluetoothPage" : (BuildContext context){
+          return BluetoothPage(startDetection: selectStartDetection, stopDetection: selectStopDetection, piResponseText: piResponseText);
+          },
+      },
     );
 
   }

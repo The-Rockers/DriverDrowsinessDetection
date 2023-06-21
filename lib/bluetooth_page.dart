@@ -20,19 +20,20 @@ class BluetoothPage extends StatefulWidget{
 
   void Function() Function()? startDetection;
   void Function() Function()? stopDetection;
-  String? piResponseText = MyAppState.piResponseText;
+  String? piResponseText;
 
   @override
   State<BluetoothPage> createState() => BluetoothAppState(startDetection: startDetection, stopDetection: stopDetection, piResponseText: piResponseText);
 
   BluetoothPage({required this.startDetection, required this.stopDetection, required this.piResponseText});
+  
 }
 
 class BluetoothAppState extends State<BluetoothPage>{
 
   void Function() Function()? startDetection;
   void Function() Function()? stopDetection;
-  String? piResponseText = MyAppState.piResponseText;
+  String? piResponseText;
 
   BluetoothAppState({required this.startDetection, required this.stopDetection, required this.piResponseText});
 

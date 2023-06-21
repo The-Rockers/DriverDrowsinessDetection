@@ -9,19 +9,21 @@ class ScanHomePage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-
-          ElevatedButton(
-            style: null,
-            onPressed: scan(),
-            child: Text("Search for Pi devices"),
+    return 
+      Scaffold(
+        body:Center(
+          child: Column(
+            children: [
+              ElevatedButton(
+                style: null,
+                onPressed: scan(),
+                child: Text("Search for Pi devices"),
+              ),
+              Text(connectionStatusText),
+            ],
           ),
-          Text(connectionStatusText),
-        ],
-      ),
-    );
+        )
+      );
   }
 
 }
