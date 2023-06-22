@@ -13,7 +13,16 @@ class ScanHomePage extends StatelessWidget{
       Scaffold(
         body:Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+            Text("ADDDS Bluetooth App"),
+            const SizedBox(height: 50),
+              Image.asset(
+                "assets/images/logo.png",
+                height:200,
+                scale: 2,
+              ),
+              const SizedBox(height: 50),
               ElevatedButton(
                 style: null,
                 onPressed: scan(),

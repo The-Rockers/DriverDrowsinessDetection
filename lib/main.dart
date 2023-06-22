@@ -15,7 +15,7 @@ import 'firebase_options.dart';
 import 'google_clientId.dart';
 
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, sleep;
 
 // Personally created pages
 import 'bluetooth_page.dart';
@@ -64,7 +64,7 @@ class MyAppState extends State<MyApp> {
   String connectionStatusText = "";
 
   late UserCredential? globalUser = null;
-  late String JWT;
+  // late String JWT;
   bool isUserLoggedIn = false;
 
   BuildContext? mainBuildContext;
@@ -79,6 +79,16 @@ class MyAppState extends State<MyApp> {
     Navigator.of(mainBuildContext!).pushNamed("/bluetoothPage");
   }
 
+  void clearPiText(){
+    setState((){
+      piResponseText = "";
+    });
+  }
+
+  void Function() selectClearPiText(){
+    return clearPiText;
+  }
+
   void initializeFirebaseApp() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -89,6 +99,7 @@ class MyAppState extends State<MyApp> {
   void _startScan() async { // Works
 
     bool permGranted = false;
+
     setState(() {
       _scanStarted = true;
       connectionStatusText = "Starting Scan!";
@@ -142,9 +153,8 @@ class MyAppState extends State<MyApp> {
           }); // Had to remove the onErrorBlock (threw an exception at runtime)
     }
 
-    // TODO : Remove this from testing phase
-
-    navigateToBluetoothPage();
+    // sleep(const Duration(milliseconds: 50));
+    // navigateToBluetoothPage();
 
   } 
 
@@ -173,34 +183,6 @@ class MyAppState extends State<MyApp> {
         globalUser = tempUser;
         // //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
       });
-
-      tempUser.user?.getIdToken(true).then((token){
-        JWT = token; // make token globally accessible
-        //print(token);
-
-        // _Write("-_ JWT _-");
-
-        // for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
-
-        //   int end = i + 350;
-
-        //   if(end > token.length){
-        //     end = token.length;
-        //   }
-
-        //   _Write(token.substring(i,end));
-
-        // }
-
-        // _Write("-_ JWT _-");
-
-        // printWrapped('user token is: ---${token}---'); // Print full JWT to terminal. Careful copying required
-
-      });
-
-      if(globalUser != null){
-        navigateToBluetoothPage();
-      }
 
     });
 
@@ -245,6 +227,8 @@ class MyAppState extends State<MyApp> {
               _connecting = false;
             });
             _Read();
+            sleep(const Duration(milliseconds: 250));
+            navigateToBluetoothPage();
             break;
           }
         case DeviceConnectionState.disconnected:
@@ -284,13 +268,9 @@ class MyAppState extends State<MyApp> {
 
     }
 
-    setState((){
-      text3 = "Listening to Pi Data!";
-    });
-
   }
 
-  void _Write(String payload){ // works
+  void _Write(String payload){
 
     print("Writing: " + payload);
 
@@ -308,14 +288,12 @@ class MyAppState extends State<MyApp> {
     }
   }
 
+  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
   void startDetection(){
-    
-    setState((){
-      piResponseText = "testing123!";
-    });
-
-    Navigator.of(mainBuildContext!).pop();
-
     _Write("-Start Detection-");
   }
 
@@ -331,13 +309,58 @@ class MyAppState extends State<MyApp> {
     return stopDetection;
   }
 
+  void sendData(){
+
+    if(globalUser != null){
+
+      _Write("-Send Data-");
+
+      globalUser!.user?.getIdToken(true).then((token){
+
+        _Write("-_ JWT _-");
+
+        for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
+
+          int end = i + 350;
+
+          if(end > token.length){
+            end = token.length;
+          }
+
+          _Write(token.substring(i,end));
+
+        }
+
+        _Write("-_ JWT _-");
+
+        printWrapped('JWT: ---${token}---'); // Print full JWT to terminal. Careful copying required
+
+      });
+
+    }
+    else{
+      signInWithGoogle();
+    }
+  }
+
+  void Function() selectSendData(){
+    return sendData;
+  }
+
+  void sendSignal(){
+    _Write("-Send Signal-");
+  }
+
+  void Function() selectSendSignal(){
+    return sendSignal;
+  }
+
   void downloadNewModel(){
     _Write("-Download New Model-");
   }
 
-  void printWrapped(String text) { // for printing extrememly large strings to terminal (JWT)
-    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
-    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  void Function() selectDownloadNewModel(){
+    return downloadNewModel;
   }
 
   void signOut() async {
@@ -351,24 +374,26 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  VoidCallback selectSignOut(){
+  void Function() selectSignOut(){
     return signOut;
   }
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: "ADDDS Bluetooth App",
-      // home:ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText),
       home: Builder(
         builder: (BuildContext context) {
           mainBuildContext = context;
-          return ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText);
+          return Center(child: 
+            ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText)
+          ,);
         },
       ),
       routes: <String, WidgetBuilder>{
         "/bluetoothPage" : (BuildContext context){
-          return BluetoothPage(startDetection: selectStartDetection, stopDetection: selectStopDetection, piResponseText: piResponseText);
+          return BluetoothPage(signIn: selectSignInWithGoogle, signOut: selectSignOut, sendData: selectSendData, sendSignal: selectSendSignal, downloadNewModel: selectDownloadNewModel, clearPiText: selectClearPiText, startDetection: selectStartDetection, stopDetection: selectStopDetection, piResponseText: piResponseText);
           },
       },
     );
