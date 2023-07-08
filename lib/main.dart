@@ -139,13 +139,14 @@ class MyAppState extends State<MyApp> {
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
 
-              // print("Device: " + device.name);
-              // print("Device ID: " + device.id);
+              //print("Device: " + device.name);
+              //print("Device ID: " + device.id);
 
               setState(() {
                 connectionStatusText = "Device Found!";
               });
 
+              sleep(const Duration(milliseconds: 1000));
               _connectToDevice();
 
             }
@@ -226,8 +227,8 @@ class MyAppState extends State<MyApp> {
               _connected = true;
               _connecting = false;
             });
+            sleep(const Duration(milliseconds: 1000));
             _Read();
-            sleep(const Duration(milliseconds: 250));
             navigateToBluetoothPage();
             break;
           }
@@ -237,6 +238,9 @@ class MyAppState extends State<MyApp> {
               _connecting = false;
               connectionStatusText = "Not connected to Device!";
             });
+            sleep(const Duration(milliseconds: 1000));
+            _Read();
+            navigateToBluetoothPage();
             break;
           }
         default: // none
