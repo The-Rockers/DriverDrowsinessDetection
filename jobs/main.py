@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask, request
-from google.cloud import storage, firestore,iam
+from google.cloud import storage,firestore,iam
 import json
 import os
 import re
@@ -34,16 +34,16 @@ model = tf.keras.models.load_model('/tmp/en_model_v0.h5')
 
 
 
-def add_user(userId):
+def add_user(user_id):
     """Gets the email, first name, and last name of a user.
     Args:
         userId: The ID of the user.
         Returns: A dictionary containing the user's email address, first name, and last name.
     """
-    user_info = iam.get_user(userId)
+    user_info = iam.get_user(user_id = user_id)
 
     # check if the userId is in the Firestore collection already
-    user_ref = db.collection('users').document(userId)
+    user_ref = db.collection('users').document(user_id)
     user_doc = user_ref.get()
     if user_doc.exists:
         # Get the user's email, first name, and last name from the database
@@ -54,13 +54,14 @@ def add_user(userId):
             'FName': user_info["first_name"],
             'LName': user_info["last_name"],
             'email': user_info["email"],
-            'id': userId
+            'id': user_id
         }
         # Add the user to the database
         user_ref.set(user_info)
         return user_info
 
-def add_document(filename, drowsiness_events, drowsiness_summary, userId):
+def add_document(filename, drowsiness_events, drowsiness_summary, user_id):
+    """Adds a document to the Firestore database."""
     pattern = r"(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})"
     matches = re.search(pattern, filename)
     if matches:
@@ -68,7 +69,7 @@ def add_document(filename, drowsiness_events, drowsiness_summary, userId):
         timestamp = datetime(int(year),int(month),int(day),int(hour),int(minute),int(second))
         document_title = timestamp.strftime("%Y-%m-%d")
         # check if the document exists in the Firestore collection already
-        doc_ref = db.collection('users').document(userId).collection('data').document(document_title)
+        doc_ref = db.collection('users').document(user_id).collection('data').document(document_title)
         doc = doc_ref.get()
         if doc.exists:
             # add driver_sessions as a subcollection, where each timestamp represents the start of a driver session.
@@ -88,12 +89,13 @@ def add_document(filename, drowsiness_events, drowsiness_summary, userId):
     else:
         return None
 
-def process_video(bucket_name, user_id, video_file):
+def process_video(user_id, video_file):
+    """Processes a video file and adds the drowsiness events to the database."""
     frame_data = {}
     frame_number = 0
     drowsiness_events = []
-    drowsiness_summary = {"drowsy": 0, "not_drowsy": 0"}
-    frame_number = video_to_frames(bucket_name, video_file, user_id, frame_data, frame_number, drowsiness_events,drowsiness_summary)
+    drowsiness_summary = {"drowsy": 0, "not_drowsy": 0}
+    frame_number = video_to_frames(video_file, drowsiness_events, drowsiness_summary, frame_data, frame_number)
     # Add the drowsiness events to the database
     add_document(video_file, drowsiness_events, drowsiness_summary, user_id)
 
@@ -110,7 +112,8 @@ def process_video(bucket_name, user_id, video_file):
 
 
 
-def video_to_frames(bucket_name,blob_name,user_id,frame_dict={},frame_number=0, drowsiness_events = [], drowsiness_summary):
+def video_to_frames(blob_name, drowsiness_events, drowsiness_summary, frame_dict,frame_number=0):
+    """Extracts frames from a video and saves them to a local directory."""
     drowsy = 0
     not_drowsy = 0
 
@@ -191,7 +194,7 @@ def main():
         
         # Process each video file
         for video_file in video_files:
-            process_video(bucket_name, user_id, video_file)
+            process_video(user_id, video_file)
         
         # Delete the signal file
         signal_blob = bucket.blob(file_path)
