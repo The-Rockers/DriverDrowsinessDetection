@@ -1,7 +1,9 @@
+from datetime import datetime
 from flask import Flask, request
-from google.cloud import storage, firestore
+from google.cloud import storage, firestore,iam
 import json
 import os
+import re
 import random
 import sys
 import time
@@ -30,10 +32,70 @@ model_blob = bucket.blob(model_path)
 model_blob.download_to_filename('/tmp/en_model_v0.h5')
 model = tf.keras.models.load_model('/tmp/en_model_v0.h5')
 
+
+
+def add_user(userId):
+    """Gets the email, first name, and last name of a user.
+    Args:
+        userId: The ID of the user.
+        Returns: A dictionary containing the user's email address, first name, and last name.
+    """
+    user_info = iam.get_user(userId)
+
+    # check if the userId is in the Firestore collection already
+    user_ref = db.collection('users').document(userId)
+    user_doc = user_ref.get()
+    if user_doc.exists:
+        # Get the user's email, first name, and last name from the database
+        user_info = user_doc.to_dict()
+        return user_info
+    else:
+        user_info = {
+            'FName': user_info["first_name"],
+            'LName': user_info["last_name"],
+            'email': user_info["email"],
+            'id': userId
+        }
+        # Add the user to the database
+        user_ref.set(user_info)
+        return user_info
+
+def add_document(filename, drowsiness_events, drowsiness_summary, userId):
+    pattern = r"(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})"
+    matches = re.search(pattern, filename)
+    if matches:
+        year,month,day,hour,minute,second = matches.groups()
+        timestamp = datetime(int(year),int(month),int(day),int(hour),int(minute),int(second))
+        document_title = timestamp.strftime("%Y-%m-%d")
+        # check if the document exists in the Firestore collection already
+        doc_ref = db.collection('users').document(userId).collection('data').document(document_title)
+        doc = doc_ref.get()
+        if doc.exists:
+            # add driver_sessions as a subcollection, where each timestamp represents the start of a driver session.
+            doc_ref.collection('driver_sessions').add({
+                'date': timestamp,
+                'drowsiness_events': drowsiness_events,
+                'drowsiness_summary': drowsiness_summary
+            })
+        else:
+            # create a new document with document_title as the title and add driver_sessions as a subcollection
+            doc_ref.set()
+            doc_ref.collection('driver_sessions').add({
+                'date': timestamp,
+                'drowsiness_events': drowsiness_events,
+                'drowsiness_summary': drowsiness_summary
+            })
+    else:
+        return None
+
 def process_video(bucket_name, user_id, video_file):
     frame_data = {}
     frame_number = 0
-    frame_number = video_to_frames(bucket_name, video_file, user_id, frame_data, frame_number)
+    drowsiness_events = []
+    drowsiness_summary = {"drowsy": 0, "not_drowsy": 0"}
+    frame_number = video_to_frames(bucket_name, video_file, user_id, frame_data, frame_number, drowsiness_events,drowsiness_summary)
+    # Add the drowsiness events to the database
+    add_document(video_file, drowsiness_events, drowsiness_summary, user_id)
 
     # Save and upload the pickle file
     with open(f"/tmp/training_data.pkl", 'wb') as output:
@@ -48,7 +110,10 @@ def process_video(bucket_name, user_id, video_file):
 
 
 
-def video_to_frames(bucket_name,blob_name,user_id,frame_dict={},frame_number=0):
+def video_to_frames(bucket_name,blob_name,user_id,frame_dict={},frame_number=0, drowsiness_events = [], drowsiness_summary):
+    drowsy = 0
+    not_drowsy = 0
+
     blob = bucket.blob(blob_name)
     filename = "/tmp/" + os.path.basename(blob_name)
     blob.download_to_filename(filename)
@@ -73,15 +138,21 @@ def video_to_frames(bucket_name,blob_name,user_id,frame_dict={},frame_number=0):
         label = prediction[0][0] < 0.5
 
         if label:
-            drowsy_event = {
-                'drowsy': True,
-                'timestamp': firestore.SERVER_TIMESTAMP,
-                'userID': user_id
-            }
+            drowsy+=1
+            drowsiness_events.append(int(label))
+            # drowsy_event = {
+            #     'drowsy': True,
+            #     'timestamp': firestore.SERVER_TIMESTAMP,
+            #     'userID': user_id
+            # }
 
-            # Add the drowsy event to the database
-            db.collection('drowsiness_events').add(drowsy_event)
+            # # Add the drowsy event to the database
+            # db.collection('users').add(drowsy_event)
+        else:
+            not_drowsy+=1
 
+        drowsiness_summary["drowsy"] = drowsy
+        drowsiness_summary["not_drowsy"] = not_drowsy
         frame_dict[frame_number] = (original_frame, label)
         frame_number += 1
 
@@ -109,6 +180,7 @@ def main():
         return ('', 204)
 
     user_id = file_path.split('/')[1]
+    user_info = add_user(user_id)
 
 
     if file_path.endswith('signal.txt'):

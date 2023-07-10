@@ -5,7 +5,7 @@ FROM python:3.10
 COPY main.py /
 
 # Install any required Python packages
-RUN pip install --no-cache-dir flask google-cloud-storage google-cloud-firestore tensorflow opencv-python-headless numpy
+RUN pip install --no-cache-dir flask google-cloud-storage google-cloud-firestore tensorflow opencv-python-headless numpy google-cloud-iam
 
 # Run your script when the Docker container is started
 CMD [ "python", "./main.py" ]
