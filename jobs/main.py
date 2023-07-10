@@ -1,6 +1,8 @@
+from collections import namedtuple
 from datetime import datetime
 from flask import Flask, request
-from google.cloud import storage,firestore,iam
+from google.cloud import storage,firestore
+from firebase_admin import auth
 import json
 import os
 import re
@@ -40,7 +42,13 @@ def add_user(user_id):
         userId: The ID of the user.
         Returns: A dictionary containing the user's email address, first name, and last name.
     """
-    user_info = iam.get_user(user_id = user_id)
+    try:
+        # Get the user's info from Firebase Authentication
+        user_info = auth.get_user(user_id)
+    except auth.AuthError as auth_error:
+        print(f"An error occurred: {auth_error}")
+        user_info = namedtuple('user_info', ['display_name', 'email'])
+        user_info = user_info('John Doe', 'jdoe@gmail.com')
 
     # check if the userId is in the Firestore collection already
     user_ref = db.collection('users').document(user_id)
@@ -51,9 +59,9 @@ def add_user(user_id):
         return user_info
     else:
         user_info = {
-            'FName': user_info["first_name"],
-            'LName': user_info["last_name"],
-            'email': user_info["email"],
+            'FName': user_info.display_name.split(' ')[0],
+            'LName': user_info.display_name.split(' ')[-1],
+            'email': user_info.email,
             'id': user_id
         }
         # Add the user to the database
