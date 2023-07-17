@@ -15,6 +15,7 @@ npm-debug.*
 web-build/
 
 google_clientId.dart
+firebase_options.dart
 service-account.json
 firebase-debug.log
 .flutter-plugins-dependencies
