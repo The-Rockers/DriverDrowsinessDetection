@@ -98,6 +98,8 @@ class MyAppState extends State<MyApp> {
     //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async { // Works
 
+    //navigateToBluetoothPage(); // TODO : REMOVE FOR TESTING!
+
     bool permGranted = false;
 
     setState(() {
@@ -336,6 +338,8 @@ class MyAppState extends State<MyApp> {
         }
 
         _Write("-_ JWT _-");
+
+        _Write("-_ UID: " + globalUser!.user!.uid );
 
         printWrapped('JWT: ---${token}---'); // Print full JWT to terminal. Careful copying required
 
