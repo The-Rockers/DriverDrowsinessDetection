@@ -47,6 +47,7 @@ class MyAppState extends State<MyApp> {
 
   final fireStore = FirebaseFirestore.instance;
   List<QueryDocumentSnapshot<Map<String, dynamic>>> fireStoreDocs = [];
+  List<String> dataDocumentsID = [];
   List<DrowsinessData> userDrowsinessData = mockData; // initiaize to mock data for the time being
 
   late UserCredential? globalUser = null;
@@ -224,6 +225,8 @@ class MyAppState extends State<MyApp> {
   void getFirestoreData() async {
 
     fireStoreDocs = []; // clear list each time data is retrieved
+    dataDocumentsID = [];
+    Map<DateTime, List<int>> formatHandler = {};
 
     if(globalUserId == ""){
       print("");
@@ -231,6 +234,100 @@ class MyAppState extends State<MyApp> {
       print("");
     }
     else{ // user ID has been retrieved and set by signInWithGoogle()
+
+      print("userID used: " + globalUserId);
+
+      await fireStore.collection("users") // users collection
+      .doc(globalUserId) // user id with firebase auth id
+      .collection("data") // data subcollection
+      .get()
+      .then((event) async {
+        for (var day in event.docs) { // each document is 1 day (contains driver_sessions -> sessions -> different fields)
+
+          List<String> splitDay = day.id.split("-");
+
+          int year = int.parse(splitDay[0]);
+          int month = int.parse(splitDay[1]);
+          int day1 = int.parse(splitDay[2]);
+
+          DateTime firstOfMonth = DateTime(year,month,int.parse("1"));
+          
+          if(!formatHandler.containsKey(firstOfMonth)){ // generate keys for entire month if first of month key IS NOT present
+
+            DateTime tempDate = firstOfMonth;
+            DateTime previousWeek;
+            int weekLength = 0;
+            List<int> tempDrowsinessData;
+
+            previousWeek = firstOfMonth;
+
+            for(int i = 1 ; i < 33; i++){
+
+              tempDate = tempDate.add(Duration(days: 1));
+              weekLength++;
+
+              if(tempDate.month != firstOfMonth.month){
+                tempDrowsinessData = List<int>.filled(weekLength, 0, growable:false);
+                formatHandler[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s
+                break;
+              }
+
+              if((tempDate.day - firstOfMonth.day) % 7 == 0){ // if new week
+                tempDrowsinessData = List<int>.filled(weekLength, 0, growable:false);
+                formatHandler[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s                previousWeek = tempDate;
+                weekLength = 0;
+                previousWeek = tempDate;
+              }
+
+            }
+
+          }
+
+          num drowsinessTotal = 0;
+
+          await fireStore.collection("users") // users collection
+          .doc(globalUserId) // user id with firebase auth id
+          .collection("data") // data subcollection
+          .doc(day.id)
+          .collection("driver_sessions")
+          .get()
+          .then((event1) async {
+
+            for (var session in event1.docs) {
+              drowsinessTotal += session.data()["drowsiness_summary"]["drowsy"];
+            }
+
+          }); 
+
+          // find index of day in formatHandler map and add total drowsiness to that index
+          int dayIndex = 0;
+          DateTime tempDate = DateTime(year, month, day1);
+
+          if(formatHandler.containsKey(tempDate)){
+            formatHandler[tempDate]![0] = drowsinessTotal as int;
+          }
+          else{
+
+            while(true){ // either starts at 1st of month or MUST contain a previous week as key
+              if(formatHandler.containsKey(tempDate)){ // this case MUST eventually be reached
+                formatHandler[tempDate]![dayIndex] = drowsinessTotal as int;
+                break;
+              }
+              else{
+                tempDate = tempDate.subtract(Duration(days: 1));
+                dayIndex++;
+              }
+            }
+
+          }
+          
+        }
+      });
+
+      print(formatHandler);
+
+      /*
+      // Compatible with old format
       await fireStore.collection("users") // users collection
       .doc(globalUserId) // user id with firebase auth id
       .collection("data") // data subcollection
@@ -240,6 +337,9 @@ class MyAppState extends State<MyApp> {
           fireStoreDocs.add(doc);
         }
       });
+      */
+
+
     }
 
     populateDrowsinessDataList();
