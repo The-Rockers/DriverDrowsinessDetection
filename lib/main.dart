@@ -226,7 +226,7 @@ class MyAppState extends State<MyApp> {
 
     fireStoreDocs = []; // clear list each time data is retrieved
     dataDocumentsID = [];
-    Map<DateTime, List<int>> formatHandler = {};
+    Map<DateTime, List<int>> drowsinessDataMap = {};
 
     if(globalUserId == ""){
       print("");
@@ -252,7 +252,7 @@ class MyAppState extends State<MyApp> {
 
           DateTime firstOfMonth = DateTime(year,month,int.parse("1"));
           
-          if(!formatHandler.containsKey(firstOfMonth)){ // generate keys for entire month if first of month key IS NOT present
+          if(!drowsinessDataMap.containsKey(firstOfMonth)){ // generate keys for entire month if first of month key IS NOT present
 
             DateTime tempDate = firstOfMonth;
             DateTime previousWeek;
@@ -268,13 +268,13 @@ class MyAppState extends State<MyApp> {
 
               if(tempDate.month != firstOfMonth.month){
                 tempDrowsinessData = List<int>.filled(weekLength, 0, growable:false);
-                formatHandler[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s
+                drowsinessDataMap[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s
                 break;
               }
 
               if((tempDate.day - firstOfMonth.day) % 7 == 0){ // if new week
                 tempDrowsinessData = List<int>.filled(weekLength, 0, growable:false);
-                formatHandler[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s                previousWeek = tempDate;
+                drowsinessDataMap[previousWeek] = tempDrowsinessData; // set key to value of new list of size weekLength initialized to 0s                previousWeek = tempDate;
                 weekLength = 0;
                 previousWeek = tempDate;
               }
@@ -299,18 +299,18 @@ class MyAppState extends State<MyApp> {
 
           }); 
 
-          // find index of day in formatHandler map and add total drowsiness to that index
+          // find index of day in drowsinessDataMap map and add total drowsiness to that index
           int dayIndex = 0;
           DateTime tempDate = DateTime(year, month, day1);
 
-          if(formatHandler.containsKey(tempDate)){
-            formatHandler[tempDate]![0] = drowsinessTotal as int;
+          if(drowsinessDataMap.containsKey(tempDate)){
+            drowsinessDataMap[tempDate]![0] = drowsinessTotal as int;
           }
           else{
 
             while(true){ // either starts at 1st of month or MUST contain a previous week as key
-              if(formatHandler.containsKey(tempDate)){ // this case MUST eventually be reached
-                formatHandler[tempDate]![dayIndex] = drowsinessTotal as int;
+              if(drowsinessDataMap.containsKey(tempDate)){ // this case MUST eventually be reached
+                drowsinessDataMap[tempDate]![dayIndex] = drowsinessTotal as int;
                 break;
               }
               else{
@@ -324,7 +324,7 @@ class MyAppState extends State<MyApp> {
         }
       });
 
-      print(formatHandler);
+      // print(drowsinessDataMap);
 
       /*
       // Compatible with old format
@@ -342,13 +342,13 @@ class MyAppState extends State<MyApp> {
 
     }
 
-    populateDrowsinessDataList();
+    populateDrowsinessDataList(drowsinessDataMap);
 
   }
 
-  void populateDrowsinessDataList() { // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
+  void populateDrowsinessDataList(Map<DateTime, List<int>> drowsinessDataMap) { // Supports different days and months but NOT years (yet) Depends on how data is stored in firebase
 
-    if(fireStoreDocs.length == 0){
+    if(drowsinessDataMap.length == 0){
       print("There was no data found for this user! ---------");
 
       setState((){
@@ -372,7 +372,31 @@ class MyAppState extends State<MyApp> {
     List<List<int>> drowsiness = [];
     userDrowsinessData = []; // clear userDrowsinessData for populating with new data
 
-    for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each document held in firebase (1 doc = 1 month's data)
+    // convert drowsinessDataMap into format compatible with previously supported format
+    List<Map<String, List<int>>> drowsinessDataMapMonths = [];
+    Map<String, List<int>> tempDataMap = {};
+    int previousMonth = drowsinessDataMap.keys.elementAt(0).month;
+
+    drowsinessDataMap.forEach((key, value){
+
+        if(key.month == previousMonth){
+          tempDataMap[key.toString().substring(0,10)] = value;
+        }
+        else{
+          previousMonth = key.month;
+          drowsinessDataMapMonths.add(tempDataMap);
+          tempDataMap = {};
+          tempDataMap[key.toString().substring(0,10)] = value;
+        }
+
+    });
+
+    drowsinessDataMapMonths.add(tempDataMap); // month won't have been added through for loop.
+
+    // print(drowsinessDataMapMonths);
+
+    // for(QueryDocumentSnapshot<Map<String, dynamic>> doc in fireStoreDocs){ // For each document held in firebase (1 doc = 1 month's data)
+    for(Map<String, List<int>> month in drowsinessDataMapMonths){ // For each document held in firebase (1 doc = 1 month's data)
 
       /*
         Retrieve the data form each document in firebase (1 doc = 1 month's data)
@@ -385,17 +409,17 @@ class MyAppState extends State<MyApp> {
       List<List<String>> splitWeeks = [];
       DateTime tempWeekStart;
 
-      weeks = doc.data().keys; // data for each week name (month day and year)
-      tempDrowsiness = doc.data().values; // data for each week (list of maximum 7 ints)
+      weeks = month.keys; // data for each week name (month day and year)
+      tempDrowsiness = month.values; // data for each week (list of maximum 7 ints)
 
       for(int i = 0; i < weeks.length; i++){ // split weeks into array of ints for creating DateTime objects
         splitWeeks.add(weeks.elementAt(i).split("-"));
       }
 
       for(List<String> date in splitWeeks){ // creates datetime object for each week
-        int year = int.parse("20" + date[2]); // assumes year comes in form "23" for 2023 for example
-        int month = int.parse(date[0]);
-        int day = int.parse(date[1]);
+        int year = int.parse(date[0]); // assumes year comes in form "23" for 2023 for example
+        int month = int.parse(date[1]);
+        int day = int.parse(date[2]);
 
         tempWeekStart = DateTime(year, month, day);
         weekStarts.add(tempWeekStart);
