@@ -391,7 +391,7 @@ class MyAppState extends State<MyApp> {
 
     });
 
-    drowsinessDataMapMonths.add(tempDataMap); // month won't have been added through for loop.
+    drowsinessDataMapMonths.add(tempDataMap); // last month won't have been added through for loop.
 
     // print(drowsinessDataMapMonths);
 

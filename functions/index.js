@@ -298,48 +298,120 @@ exports.exportUserData = functions.https.onRequest(async (req, res) => { // retu
 
     await admin.firestore().collection('users').doc(userId).collection('data').get().then(async snapshot => { // retrieve firestore data and format as JSON response
 
-      let JSONResponseText = `{`;
+      let dayIDs = [];
+      let dayDrowsiness = Array(snapshot.docs.length).fill(0);
+      let dayDrowsinessSum = 0;
 
-      snapshot.forEach( (doc) => { // each document is 1 month
+      for(let i = 0; i < snapshot.docs.length; i++){ // docs is each day
 
-        monthCount++; // workaround for invalid index (foreach index returned invalid when accessed)
-        monthsString = `${doc.id}`; // retrieves the month
+        dayIDs[i] = snapshot.docs[i].id;
+        let daySessionIds = [];
 
-        JSONResponseText += `"${monthsString}":`;
-        JSONResponseText += `{`;
+        await admin.firestore().collection('users').doc(userId).collection('data').doc(dayIDs[i]).collection('driver_sessions').get().then( async snapshot1 => { // docs is each session
 
-        monthsDataKeys = Object.keys(doc.data()); // retrieves the months attributes for each document
-        monthsDataKeys.forEach( (key,index) => { // for each week in the month
+          for(let j = 0; j < snapshot1.docs.length; j++){
+            daySessionIds[j] = snapshot1.docs[j].id;
 
-          monthsDataString = ``; // reset monthsDataString for each week's data
-          monthsDataString += `${doc.data()[key]}`;
+            await admin.firestore().collection('users').doc(userId).collection('data').doc(dayIDs[i]).collection('driver_sessions').doc(daySessionIds[j]).get().then( async snapshot2 => { // session data
+              //console.log(snapshot2.data()["drowsiness_summary"]["drowsy"]);
+              dayDrowsiness[i] += snapshot2.data()["drowsiness_summary"]["drowsy"];
+            });
 
-          JSONResponseText += `"${key}":`
-
-          if(index === monthsDataKeys.length-1){ // if on last weekStart fields
-            JSONResponseText += `[${monthsDataString}]`; // no comma
-          }
-          else{
-            JSONResponseText += `[${monthsDataString}],`; // add comma for next element
           }
 
-        }); // returns data for each key in month
+        });
+      }
 
-        if(monthCount === snapshot.size-1){ // if on last month
-          JSONResponseText += `}`; // no comma
+      //console.log(dayIDs);
+      //console.log(dayDrowsiness);
+
+      let JSONObject = {};
+      let monthKeys = [];
+
+      for(let i = 0; i < dayIDs.length; i++){
+
+        let temp = new Date(dayIDs[i]);
+        temp.setDate(temp.getDate() - (temp.getDate()) + 1); // set date to beginning of month
+      
+        if(!JSONObject[temp.toISOString().substring(0,10)]){
+          JSONObject[temp.toISOString().substring(0,10)] = {};
+          monthKeys.push(temp.toISOString().substring(0,10));
         }
-        else{
-          JSONResponseText += `},`; // comma
+
+      }
+
+      for(let i = 0; i < monthKeys.length; i++){
+
+        if(Object.keys(JSONObject[monthKeys[i]]).length == 0){ // if no weeks, populate with corresponding weeks
+
+          let startOfMonth = new Date(monthKeys[i]);
+          let startOfMonthDay = startOfMonth.getDay();
+          let startOfMonthMonth = startOfMonth.getMonth();
+          let tempDate = new Date(monthKeys[i]);
+          let weekSize = 0;
+
+          for(let j = 0; j < 35; j++){ // move tempDate to the end of the month
+
+            if(tempDate.getMonth() != startOfMonthMonth){ // if jump to next month, break
+              break;
+            }
+
+            tempDate.setDate(tempDate.getDate() + 1); // increment by one day
+
+          }
+
+          //tempDate.setDate(tempDate.getDate() - 1); // decrement by one day
+          //weekSize++;
+
+          for(let j = 0; j < 35; j++){ // Move backwards to record week size for each week
+
+            tempDate.setDate(tempDate.getDate() - 1); // decrement by one day
+            weekSize++;
+
+            if(tempDate.getMonth() != startOfMonthMonth){ // if moved to new month
+              break;
+            }
+
+            if(tempDate.getDay() == startOfMonthDay){
+              JSONObject[monthKeys[i]][tempDate.toISOString().substring(0,10)] = new Array(weekSize).fill(0);
+              weekSize = 0;
+            }
+
+          }
+
         }
 
-      });
+      }
 
-      JSONResponseText += '}';
-
-      let JSONObject = JSON.parse(JSONResponseText);
       //console.log(JSONObject);
 
-      //     if(!(fileType == "CSV" || fileType == "PRQ" || fileType == "XLS")){
+      for(let i = 0; i < dayIDs.length; i++){
+
+        let dayIndex = 0;
+        let firstOfMonthKey = "";
+        let temp = new Date(dayIDs[i]);
+
+        temp.setDate(temp.getDate() - (temp.getDate()) + 1); // set date to beginning of month
+
+        firstOfMonthKey = temp.toISOString().substring(0,10);
+        temp = new Date(dayIDs[i]);
+
+        for(let j = 0; j < 9; j++){ // search for specific week
+
+          if(JSONObject[firstOfMonthKey][temp.toISOString().substring(0,10)]){ // JSONObject-> firstOfMonthKey -> firstOfWeekKey. If key exists
+            JSONObject[firstOfMonthKey][temp.toISOString().substring(0,10)][dayIndex] = dayDrowsiness[i];
+            break; // MUST occur since week will be in JSONObject
+          }
+          else{
+            temp.setDate(temp.getDate() - 1); // decrement by one day
+            dayIndex++;
+          }
+
+        }
+
+      }
+
+      //console.log(JSONObject);
 
       var path = "";
 

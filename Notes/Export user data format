@@ -1,0 +1,54 @@
+JSONResponseText
+{
+  "1-1-23": {
+    "1-1-23": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "1-15-23": [
+      1,
+      5,
+      6,
+      27,
+      35
+    ]
+  },
+  "4-1-23": {
+    "4-15-23": [
+      1,
+      5,
+      6,
+      7,
+      3,
+      3
+    ],
+    "4-1-24": [
+      1,
+      5,
+      6,
+      8,
+      12,
+      34
+    ]
+  }
+}
+
+-------------------------------------------------------------------
+
+placing it into this format will work, I just need to find the appropriate
+indices for the days.
+
+JSONObject
+{
+'1-1-23': { '1-1-23': [ 0, 1, 2, 4, 5, 6 ], '1-15-23': [ 1, 5, 6, 27, 35 ] },
+'4-1-23': { '4-15-23': [ 1, 5, 6, 7, 3, 3 ], '4-1-24': [ 1, 5, 6, 8, 12, 34 ] }
+}
+
+- Find the first of the month for each day. Set this as a key in the greater object.
+- In each smaller object, create a key for each week start. Then set value equal to 
+    array of integers. 
+Stringify and use as data payload.
