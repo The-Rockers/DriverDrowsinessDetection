@@ -73,7 +73,7 @@ class MyAppState extends State<MyApp> {
   BuildContext? mainBuildContext;
   late State<MyApp> myAppState;
 
-    @override
+  @override
   void initState() {
     initializeFirebaseApp();
   }
@@ -271,6 +271,7 @@ class MyAppState extends State<MyApp> {
             }
 
             return;
+
           }
         case DeviceConnectionState.disconnected:
           {
@@ -323,7 +324,7 @@ class MyAppState extends State<MyApp> {
 
         if(response == "- Pong -"){ // increment pong counter
           setState((){
-            pongCounter++;
+            pongCounter = pongCounter + 1;
           });
           return;
         }
@@ -450,7 +451,9 @@ class MyAppState extends State<MyApp> {
     _Write("- Ping -");
     sleep(const Duration(milliseconds: 200));
 
-    if(pongCounter >= 3){
+    print("Pong counter: $pongCounter");
+
+    if(pongCounter > 0){
       setState((){
         pongCounter = 0;
       });
