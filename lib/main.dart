@@ -153,6 +153,7 @@ class MyAppState extends State<MyApp> {
 
               sleep(const Duration(milliseconds: 1000));
               _connectToDevice();
+              return;
 
             }
 
@@ -257,19 +258,19 @@ class MyAppState extends State<MyApp> {
 
               if(validateConnection()){
                 navigateToBluetoothPage();
-                break;
+                return;
               }
               else{
                 setState((){
                   piResponseText = "Connection Validation failed. Reconnecting!";
                 });
                 _connectToDevice();
-                break;
+                return;
               }
 
             }
 
-            break;
+            return;
           }
         case DeviceConnectionState.disconnected:
           {
@@ -285,20 +286,21 @@ class MyAppState extends State<MyApp> {
 
               if(validateConnection()){
                 navigateToBluetoothPage();
-                break;
+                return;
               }
               else{
                 setState((){
                   piResponseText = "Connection Validation failed. Reconnecting!";
                 });
                 _connectToDevice();
-                break;
+                return;
               }
             }
             else{
+              sleep(const Duration(milliseconds: 300));
               _startScan();
             }
-            break;
+            return;
           }
 
         default: // none
@@ -317,12 +319,14 @@ class MyAppState extends State<MyApp> {
 
         data.forEach((value) => {response += String.fromCharCode(value)});
 
+        print("Pi : " + response);
+
         if(response == "- Pong -"){ // increment pong counter
-          pongCounter++;
+          setState((){
+            pongCounter++;
+          });
           return;
         }
-
-        print("Pi : " + response);
 
         setState((){
           piResponseText += "Pi: ${response}\n";
@@ -435,21 +439,27 @@ class MyAppState extends State<MyApp> {
 
   bool validateConnection(){
 
-    pongCounter = 0;
-
-    _Write("- Ping -");
-    sleep(const Duration(milliseconds: 200));
-    _Write("- Ping -");
-    sleep(const Duration(milliseconds: 200));
-    _Write("- Ping -");
-    sleep(const Duration(milliseconds: 200));
-
-    if(pongCounter == 3){
+    setState((){
       pongCounter = 0;
+    });
+
+    _Write("- Ping -");
+    sleep(const Duration(milliseconds: 200));
+    _Write("- Ping -");
+    sleep(const Duration(milliseconds: 200));
+    _Write("- Ping -");
+    sleep(const Duration(milliseconds: 200));
+
+    if(pongCounter >= 3){
+      setState((){
+        pongCounter = 0;
+      });
       return true;
     }
     else{
-      pongCounter = 0;
+      setState((){
+        pongCounter = 0;
+      });
       return false;
     }
 
