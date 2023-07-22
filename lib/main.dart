@@ -62,6 +62,7 @@ class MyAppState extends State<MyApp> {
   String userIdText = "no user id yet";
   String piResponseText = "";
   String connectionStatusText = "";
+  int pongCounter = 0;
 
   late UserCredential? globalUser = null;
   // late String JWT;
@@ -96,7 +97,7 @@ class MyAppState extends State<MyApp> {
   }
 
     //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
-  void _startScan() async { // Works
+  void _startScan() async {
 
     //navigateToBluetoothPage(); // TODO : REMOVE FOR TESTING!
 
@@ -229,10 +230,21 @@ class MyAppState extends State<MyApp> {
               _connected = true;
               _connecting = false;
             });
+
             sleep(const Duration(milliseconds: 1000));
-            _Read();
-            navigateToBluetoothPage();
-            break;
+
+            if(validateConnection()){
+              _Read();
+              navigateToBluetoothPage();
+              break;
+            }
+            else{
+              setState((){
+                piResponseText = "Connection Validation failed. Reconnecting!";
+              });
+              _connectToDevice();
+              break;
+            }
           }
         case DeviceConnectionState.disconnected:
           {
@@ -240,10 +252,22 @@ class MyAppState extends State<MyApp> {
               _connecting = false;
               connectionStatusText = "Not connected to Device!";
             });
+
             sleep(const Duration(milliseconds: 1000));
-            _Read();
-            navigateToBluetoothPage();
-            break;
+
+            if(validateConnection()){
+              _Read();
+              navigateToBluetoothPage();
+              break;
+            }
+            else{
+              setState((){
+                piResponseText = "Connection Validation failed. Reconnecting!";
+              });
+              _connectToDevice();
+              break;
+            }
+            
           }
         default: // none
       }
@@ -252,13 +276,18 @@ class MyAppState extends State<MyApp> {
 
   void _Read() async{
 
-    if(!isSubscribed){
+    if(!isSubscribed || isSubscribed){ // ignore subscription to work around false negative connection inidication. Might throw errors at runtime
 
       flutterReactiveBle.subscribeToCharacteristic(_txCharacteristic).listen((data) {
 
         String response = '';
 
         data.forEach((value) => {response += String.fromCharCode(value)});
+
+        if(response == "- Pong -"){ // increment pong counter
+          pongCounter++;
+          return;
+        }
 
         print("Pi : " + response);
 
@@ -280,7 +309,7 @@ class MyAppState extends State<MyApp> {
 
     print("Writing: " + payload);
 
-    if (_connected) {
+    if (_connected || !_connected){ // write even if ble states not connected (false negative workaround). Might throw an error at runtime
 
       List<int> data = [];
 
@@ -369,6 +398,27 @@ class MyAppState extends State<MyApp> {
 
   void Function() selectDownloadNewModel(){
     return downloadNewModel;
+  }
+
+  bool validateConnection(){
+
+    pongCounter = 0;
+
+    _Write("- Ping -");
+    sleep(const Duration(milliseconds: 150));
+    _Write("- Ping -");
+    sleep(const Duration(milliseconds: 150));
+    _Write("- Ping -");
+
+    if(pongCounter == 3){
+      pongCounter = 0;
+      return true;
+    }
+    else{
+      pongCounter = 0;
+      return false;
+    }
+
   }
 
   void signOut() async {
