@@ -46,9 +46,10 @@ class MyAppState extends State<MyApp> {
   final flutterReactiveBle = FlutterReactiveBle();
   late DiscoveredDevice _bluetoothDevice;
   late StreamSubscription<DiscoveredDevice> _scanStream;
-  late QualifiedCharacteristic _rxCharacteristic;
-  late QualifiedCharacteristic _txCharacteristic;
+  late QualifiedCharacteristic _rxCharacteristic; // Remove late modifier to allow for redefinition at runtime
+  late QualifiedCharacteristic _txCharacteristic; // // Remove late modifier to allow for redefinition at runtime
   bool isSubscribed = false;
+  bool characteristicsDefined = false;
 
   final Uuid serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // UUID for PI Gatt service
   final Uuid characteristicUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // RX characterstic
@@ -228,14 +229,19 @@ class MyAppState extends State<MyApp> {
 
         case DeviceConnectionState.connected:
           {
-            _rxCharacteristic = QualifiedCharacteristic( // Rx
-                serviceId: serviceUuid, // RPI gatt service
-                characteristicId: characteristicUuid, // 
-                deviceId: event.deviceId);
-            _txCharacteristic = QualifiedCharacteristic( // Tx
-                serviceId: serviceUuid,
-                characteristicId: characteristicUuid1,
-                deviceId: event.deviceId);
+
+            if(!characteristicsDefined){
+              _rxCharacteristic = QualifiedCharacteristic( // Rx
+                  serviceId: serviceUuid, // RPI gatt service
+                  characteristicId: characteristicUuid, // 
+                  deviceId: event.deviceId);
+              _txCharacteristic = QualifiedCharacteristic( // Tx
+                  serviceId: serviceUuid,
+                  characteristicId: characteristicUuid1,
+                  deviceId: event.deviceId);
+              characteristicsDefined = true;
+            }
+
             setState(() {
               connectionStatusText = "Connected to Device!";
               _foundDeviceWaitingToConnect = false;
@@ -245,19 +251,25 @@ class MyAppState extends State<MyApp> {
 
             sleep(const Duration(milliseconds: 1000));
 
-            _Read();
+            if(characteristicsDefined){
 
-            if(validateConnection()){
-              navigateToBluetoothPage();
-              break;
+              _Read();
+
+              if(validateConnection()){
+                navigateToBluetoothPage();
+                break;
+              }
+              else{
+                setState((){
+                  piResponseText = "Connection Validation failed. Reconnecting!";
+                });
+                _connectToDevice();
+                break;
+              }
+
             }
-            else{
-              setState((){
-                piResponseText = "Connection Validation failed. Reconnecting!";
-              });
-              _connectToDevice();
-              break;
-            }
+
+            break;
           }
         case DeviceConnectionState.disconnected:
           {
@@ -268,22 +280,29 @@ class MyAppState extends State<MyApp> {
 
             sleep(const Duration(milliseconds: 1000));
 
-            _Read();
+            if(characteristicsDefined){
+              _Read();
 
-            if(validateConnection()){
-              navigateToBluetoothPage();
-              break;
+              if(validateConnection()){
+                navigateToBluetoothPage();
+                break;
+              }
+              else{
+                setState((){
+                  piResponseText = "Connection Validation failed. Reconnecting!";
+                });
+                _connectToDevice();
+                break;
+              }
             }
             else{
-              setState((){
-                piResponseText = "Connection Validation failed. Reconnecting!";
-              });
-              _connectToDevice();
-              break;
+              _startScan();
             }
-
+            break;
           }
+
         default: // none
+
       }
     });
   }
