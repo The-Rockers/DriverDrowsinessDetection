@@ -290,7 +290,7 @@ class MyAppState extends State<MyApp> {
 
   void _Read() async{
 
-    if(!isSubscribed || isSubscribed){ // ignore subscription to work around false negative connection inidication. Might throw errors at runtime
+    if(!isSubscribed){
 
       flutterReactiveBle.subscribeToCharacteristic(_txCharacteristic).listen((data) {
 
@@ -419,10 +419,11 @@ class MyAppState extends State<MyApp> {
     pongCounter = 0;
 
     _Write("- Ping -");
-    sleep(const Duration(milliseconds: 150));
+    sleep(const Duration(milliseconds: 200));
     _Write("- Ping -");
-    sleep(const Duration(milliseconds: 150));
+    sleep(const Duration(milliseconds: 200));
     _Write("- Ping -");
+    sleep(const Duration(milliseconds: 200));
 
     if(pongCounter == 3){
       pongCounter = 0;
