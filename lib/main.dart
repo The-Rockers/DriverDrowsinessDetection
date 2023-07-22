@@ -27,6 +27,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+
   const MyApp({super.key});
 
   @override
@@ -196,6 +197,17 @@ class MyAppState extends State<MyApp> {
     return signInWithGoogle;
   }
 
+  void signOut() async {
+
+    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
+    await googleSignIn.signOut();
+
+    setState((){
+      globalUser = null;
+    });
+
+  }
+
   void _connectToDevice() {
 
     setState(() {
@@ -233,8 +245,9 @@ class MyAppState extends State<MyApp> {
 
             sleep(const Duration(milliseconds: 1000));
 
+            _Read();
+
             if(validateConnection()){
-              _Read();
               navigateToBluetoothPage();
               break;
             }
@@ -255,8 +268,9 @@ class MyAppState extends State<MyApp> {
 
             sleep(const Duration(milliseconds: 1000));
 
+            _Read();
+
             if(validateConnection()){
-              _Read();
               navigateToBluetoothPage();
               break;
             }
@@ -267,7 +281,7 @@ class MyAppState extends State<MyApp> {
               _connectToDevice();
               break;
             }
-            
+
           }
         default: // none
       }
@@ -418,17 +432,6 @@ class MyAppState extends State<MyApp> {
       pongCounter = 0;
       return false;
     }
-
-  }
-
-  void signOut() async {
-
-    GoogleSignIn googleSignIn = await GoogleSignIn(clientId: GoogleClientId.clientId);
-    await googleSignIn.signOut();
-
-    setState((){
-      globalUser = null;
-    });
 
   }
 
