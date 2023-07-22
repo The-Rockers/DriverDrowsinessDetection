@@ -191,6 +191,8 @@ class MyAppState extends State<MyApp> {
         // //userIdText = globalUser.additionalUserInfo?.profile!["id"]; //userID is null and accessing it will throw a runtime error
       });
 
+      print("Global user is: ${globalUser}");
+
     });
 
   }
@@ -210,7 +212,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void _connectToDevice() async {
+  void _connectToDevice() {
 
     setState(() {
       _connecting = true;
@@ -297,7 +299,7 @@ class MyAppState extends State<MyApp> {
                 return;
               }
             }
-            else{
+            else{ // if characterstics are not defined, scanning MUST happen again
               sleep(const Duration(milliseconds: 1500));
               _startScan();
             }
@@ -382,7 +384,7 @@ class MyAppState extends State<MyApp> {
     return stopDetection;
   }
 
-  void sendData(){
+  void sendData() {
 
     if(globalUser != null){
 
@@ -415,6 +417,7 @@ class MyAppState extends State<MyApp> {
     }
     else{
       signInWithGoogle();
+      sendData();
     }
   }
 
