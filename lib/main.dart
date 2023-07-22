@@ -449,8 +449,8 @@ class MyAppState extends State<MyApp> {
     _Write("- Ping -");
     sleep(const Duration(milliseconds: 200));
     _Write("- Ping -");
-    sleep(const Duration(milliseconds: 200));
 
+    sleep(const Duration(milliseconds: 1500)); // NEED TO WAIT FOR PONGS TO BE RECEIVED
     print("Pong counter: $pongCounter");
 
     if(pongCounter > 0){
