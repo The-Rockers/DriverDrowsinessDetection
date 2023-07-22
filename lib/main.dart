@@ -210,7 +210,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void _connectToDevice() {
+  void _connectToDevice() async {
 
     setState(() {
       _connecting = true;
@@ -225,7 +225,7 @@ class MyAppState extends State<MyApp> {
             prescanDuration: const Duration(seconds: 5),
             withServices: [serviceUuid, characteristicUuid], // hardcoded to RPI
           );
-    _currentConnectionStream.listen((event) {
+    _currentConnectionStream.listen((event) async {
       switch (event.connectionState) {
 
         case DeviceConnectionState.connected:
@@ -256,7 +256,7 @@ class MyAppState extends State<MyApp> {
 
               _Read();
 
-              if(validateConnection()){
+              if(await validateConnection()){
                 navigateToBluetoothPage();
                 return;
               }
@@ -285,7 +285,7 @@ class MyAppState extends State<MyApp> {
             if(characteristicsDefined){
               _Read();
 
-              if(validateConnection()){
+              if(await validateConnection()){
                 navigateToBluetoothPage();
                 return;
               }
@@ -298,7 +298,7 @@ class MyAppState extends State<MyApp> {
               }
             }
             else{
-              sleep(const Duration(milliseconds: 300));
+              sleep(const Duration(milliseconds: 1500));
               _startScan();
             }
             return;
@@ -438,7 +438,7 @@ class MyAppState extends State<MyApp> {
     return downloadNewModel;
   }
 
-  bool validateConnection(){
+  Future<bool> validateConnection(){
 
     setState((){
       pongCounter = 0;
@@ -450,21 +450,24 @@ class MyAppState extends State<MyApp> {
     sleep(const Duration(milliseconds: 200));
     _Write("- Ping -");
 
-    sleep(const Duration(milliseconds: 10000)); // NEED TO WAIT FOR PONGS TO BE RECEIVED
-    print("Pong counter: $pongCounter");
+    return Future.delayed(const Duration(milliseconds: 1500), (){
 
-    if(pongCounter > 0){
-      setState((){
-        pongCounter = 0;
-      });
-      return true;
-    }
-    else{
-      setState((){
-        pongCounter = 0;
-      });
-      return false;
-    }
+      print("Pong counter: $pongCounter");
+
+      if(pongCounter > 0){
+        setState((){
+          pongCounter = 0;
+        });
+        return true;
+      }
+      else{
+        setState((){
+          pongCounter = 0;
+        });
+        return false;
+      }
+
+    });
 
   }
 
