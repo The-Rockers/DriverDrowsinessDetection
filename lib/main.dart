@@ -101,7 +101,10 @@ class MyAppState extends State<MyApp> {
     //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async {
 
-    //navigateToBluetoothPage(); // TODO : REMOVE FOR TESTING!
+    ////////////////////////// TESTING ////////////////////////////////
+    navigateToBluetoothPage(); // TODO : Remove
+    return; // TODO : Remove
+    ////////////////////////// TESTING ////////////////////////////////
 
     bool permGranted = false;
 
@@ -388,12 +391,14 @@ class MyAppState extends State<MyApp> {
 
     if(globalUser != null){
 
-      _Write("-Send Data-");
+     ////////////////////////// TESTING ////////////////////////////////
+      //_Write("-Send Data-");
+      ////////////////////////// TESTING ////////////////////////////////
 
       globalUser!.user?.getIdToken(true).then((token){
-
-        _Write("-_ JWT _-");
-
+    ////////////////////////// TESTING ////////////////////////////////
+       // _Write("-_ JWT _-");
+    ////////////////////////// TESTING ////////////////////////////////
         for(int i = 0; i < token.length; i+= 350){ // cannot send full JWT at one. GATT server will crash
 
           int end = i + 350;
@@ -402,13 +407,18 @@ class MyAppState extends State<MyApp> {
             end = token.length;
           }
 
-          _Write(token.substring(i,end));
+    ////////////////////////// TESTING ////////////////////////////////
+//          _Write(token.substring(i,end));
+    ////////////////////////// TESTING ////////////////////////////////
 
         }
+    ////////////////////////// TESTING ////////////////////////////////
 
-        _Write("-_ JWT _-");
+  //      _Write("-_ JWT _-");
 
-        _Write("-_ UID: " + globalUser!.user!.uid );
+//        _Write("-_ UID: " + globalUser!.user!.uid );
+            ////////////////////////// TESTING ////////////////////////////////
+
 
         printWrapped('JWT: ---${token}---'); // Print full JWT to terminal. Careful copying required
 
