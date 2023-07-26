@@ -41,6 +41,7 @@ class MyAppState extends State<MyApp> {
   bool _scanStarted = false;
   bool _connected = false;
   bool _connecting = false;
+  bool scanRun = false;
 
   // Bluetooth related variables
   final flutterReactiveBle = FlutterReactiveBle();
@@ -101,9 +102,11 @@ class MyAppState extends State<MyApp> {
     //Start bluetooth scan for avaialble devices. Bluetooth + location needs to be on for android
   void _startScan() async {
 
-    //navigateToBluetoothPage(); // TODO : REMOVE FOR TESTING!
+    // navigateToBluetoothPage(); // TODO : REMOVE FOR TESTING!
+    // return;
 
     bool permGranted = false;
+    characteristicsDefined = false;
 
     setState(() {
       _scanStarted = true;
@@ -141,8 +144,14 @@ class MyAppState extends State<MyApp> {
           .scanForDevices(withServices: []).listen((device) { // Scan for all devices
 
             if(device.name == "rpi-gatt-server"){ // If the device is the PI
+
               _bluetoothDevice = device;
               _foundDeviceWaitingToConnect = true;
+              scanRun = true;
+
+              // _bluetoothDevice = device;
+              // _foundDeviceWaitingToConnect = true;
+              // scanRun = true;
 
               //print("Device: " + device.name);
               //print("Device ID: " + device.id);
@@ -151,8 +160,8 @@ class MyAppState extends State<MyApp> {
                 connectionStatusText = "Device Found!";
               });
 
-              sleep(const Duration(milliseconds: 1000));
-              _connectToDevice();
+              //sleep(const Duration(milliseconds: 1000));
+              //_connectToDevice();
               return;
 
             }
@@ -220,14 +229,19 @@ class MyAppState extends State<MyApp> {
     });
 
     _scanStream.cancel();
-    // Let's listen to our connection so we can make updates on a state change
-    Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle
-        .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
-            id: _bluetoothDevice.id,
-            prescanDuration: const Duration(seconds: 5),
-            withServices: [serviceUuid, characteristicUuid], // hardcoded to RPI
-          );
+
+    // Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle
+    //     .connectToAdvertisingDevice( // connectToAdvertisingDevice is for resolving Android problems
+    //         id: _bluetoothDevice.id,
+    //         prescanDuration: const Duration(seconds: 10),
+    //         withServices: [serviceUuid, characteristicUuid], // hardcoded to RPI
+    //       );
+
+    Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle. // try with new connection method
+    connectToDevice(id: _bluetoothDevice.id, connectionTimeout: const Duration(seconds: 45));
+
     _currentConnectionStream.listen((event) async {
+
       switch (event.connectionState) {
 
         case DeviceConnectionState.connected:
@@ -264,9 +278,9 @@ class MyAppState extends State<MyApp> {
               }
               else{
                 setState((){
-                  piResponseText = "Connection Validation failed. Reconnecting!";
+                  connectionStatusText = "Connection Validation failed. Try Reconnecting!";
                 });
-                _connectToDevice();
+                //_connectToDevice();
                 return;
               }
 
@@ -285,6 +299,7 @@ class MyAppState extends State<MyApp> {
             sleep(const Duration(milliseconds: 1000));
 
             if(characteristicsDefined){
+
               _Read();
 
               if(await validateConnection()){
@@ -293,15 +308,18 @@ class MyAppState extends State<MyApp> {
               }
               else{
                 setState((){
-                  piResponseText = "Connection Validation failed. Reconnecting!";
+                  connectionStatusText = "Connection Validation failed. Try reconnecting!";
                 });
-                _connectToDevice();
+                //_connectToDevice();
                 return;
               }
             }
             else{ // if characterstics are not defined, scanning MUST happen again
-              sleep(const Duration(milliseconds: 1500));
-              _startScan();
+                setState((){
+                  connectionStatusText = "Connection failed. Try reconnecing!";
+                });
+              // sleep(const Duration(milliseconds: 250));
+              //_startScan();
             }
             return;
           }
@@ -310,6 +328,10 @@ class MyAppState extends State<MyApp> {
 
       }
     });
+  }
+
+  void Function() selectConnectToDevice(){
+    return _connectToDevice;
   }
 
   void _Read() async{
@@ -339,7 +361,7 @@ class MyAppState extends State<MyApp> {
         print("Reading error");
       });
 
-      isSubscribed = true;
+      // isSubscribed = true; // allow subscribing repeatedly
 
     }
 
@@ -417,7 +439,7 @@ class MyAppState extends State<MyApp> {
     }
     else{
       signInWithGoogle();
-      sendData();
+      //sendData();
     }
   }
 
@@ -487,7 +509,7 @@ class MyAppState extends State<MyApp> {
         builder: (BuildContext context) {
           mainBuildContext = context;
           return Center(child: 
-            ScanHomePage(scan: selectStartScan, connectionStatusText: connectionStatusText)
+            ScanHomePage(scan: selectStartScan, connect: selectConnectToDevice, connectionStatusText: connectionStatusText)
           ,);
         },
       ),
