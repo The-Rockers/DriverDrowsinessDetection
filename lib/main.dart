@@ -221,7 +221,7 @@ class MyAppState extends State<MyApp> {
 
   }
 
-  void _connectToDevice() {
+  void _connectToDevice() async {
 
     setState(() {
       _connecting = true;
@@ -236,6 +236,9 @@ class MyAppState extends State<MyApp> {
     //         prescanDuration: const Duration(seconds: 10),
     //         withServices: [serviceUuid, characteristicUuid], // hardcoded to RPI
     //       );
+
+    await flutterReactiveBle.deinitialize();
+    await flutterReactiveBle.initialize();
 
     Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle. // try with new connection method
     connectToDevice(id: _bluetoothDevice.id, connectionTimeout: const Duration(seconds: 45));
