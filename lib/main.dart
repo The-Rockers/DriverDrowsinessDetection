@@ -466,6 +466,14 @@ class MyAppState extends State<MyApp> {
     return downloadNewModel;
   }
 
+  void restartGATTServer(){
+    _Write("- Restart -");
+  }
+
+  void Function() selectRestartGATTServer(){
+    return restartGATTServer;
+  }
+
   Future<bool> validateConnection(){
 
     setState((){
@@ -518,7 +526,17 @@ class MyAppState extends State<MyApp> {
       ),
       routes: <String, WidgetBuilder>{
         "/bluetoothPage" : (BuildContext context){
-          return BluetoothPage(signIn: selectSignInWithGoogle, signOut: selectSignOut, sendData: selectSendData, sendSignal: selectSendSignal, downloadNewModel: selectDownloadNewModel, clearPiText: selectClearPiText, startDetection: selectStartDetection, stopDetection: selectStopDetection, piResponseText: piResponseText);
+          return BluetoothPage(
+            signIn: selectSignInWithGoogle, 
+            signOut: selectSignOut, 
+            sendData: selectSendData, 
+            sendSignal: selectSendSignal, 
+            downloadNewModel: selectDownloadNewModel, 
+            clearPiText: selectClearPiText, 
+            startDetection: selectStartDetection, 
+            stopDetection: selectStopDetection, 
+            restartGATTServer: selectRestartGATTServer,
+            piResponseText: piResponseText);
           },
       },
     );

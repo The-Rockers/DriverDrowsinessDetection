@@ -7,10 +7,18 @@ class SettingsDrawer extends StatelessWidget{
   void Function() Function()? sendData;
   void Function() Function()? sendSignal;
   void Function() Function()? downloadNewModel;
+  void Function() Function()? restartGATTServer;
   void Function() Function()? clearPiText;
 
   @override
-  SettingsDrawer({required this.signIn, required this.signOut, required this.sendData, required this.sendSignal, required this.downloadNewModel, required this.clearPiText});
+  SettingsDrawer({
+    required this.signIn, 
+    required this.signOut, 
+    required this.sendData, 
+    required this.sendSignal, 
+    required this.downloadNewModel, 
+    required this.restartGATTServer,
+    required this.clearPiText});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +34,7 @@ class SettingsDrawer extends StatelessWidget{
                 child: Text("Sign In"),
                 onPressed: signIn!(),
               ),
+              const SizedBox(width: 10),
               ElevatedButton(
                 child: Text("Sign Out"),
                 onPressed: signOut!(),
@@ -44,6 +53,10 @@ class SettingsDrawer extends StatelessWidget{
             ElevatedButton(
               child: Text("Get New Model"),
               onPressed: downloadNewModel!(),
+            ),
+            ElevatedButton(
+              child: Text("Restart Pi server"),
+              onPressed: restartGATTServer!(),
             ),
             ElevatedButton(
               child: Text("Clear Pi Response(s) text"),

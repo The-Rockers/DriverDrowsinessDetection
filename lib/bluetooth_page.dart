@@ -14,17 +14,35 @@ class BluetoothPage extends StatelessWidget{
   void Function() Function()? sendData;
   void Function() Function()? sendSignal;
   void Function() Function()? downloadNewModel;
+  void Function() Function()? restartGATTServer;
   void Function() Function()? clearPiText;
 
   @override
-  BluetoothPage({required this.startDetection, required this.stopDetection, required this.piResponseText, required this.signIn, required this.signOut, required this.sendData, required this.sendSignal, required this.downloadNewModel, required this.clearPiText});
+  BluetoothPage({
+    required this.startDetection, 
+    required this.stopDetection, 
+    required this.piResponseText, 
+    required this.signIn, 
+    required this.signOut, 
+    required this.sendData, 
+    required this.sendSignal, 
+    required this.downloadNewModel,
+    required this.restartGATTServer,
+    required this.clearPiText});
 
   @override
   Widget build(BuildContext context) {
 
           return Scaffold(
             drawer: Drawer(
-              child: SettingsDrawer(signIn: signIn, signOut: signOut, sendData: sendData, sendSignal: sendSignal, downloadNewModel: downloadNewModel, clearPiText: clearPiText),
+              child: SettingsDrawer(
+                signIn: signIn, 
+                signOut: signOut, 
+                sendData: sendData, 
+                sendSignal: sendSignal, 
+                downloadNewModel: downloadNewModel, 
+                restartGATTServer: restartGATTServer,
+                clearPiText: clearPiText),
             ),
             appBar: AppBar(
               title: const Text('ADDDS Bluetooth App'),
