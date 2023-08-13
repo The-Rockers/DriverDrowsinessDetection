@@ -2,6 +2,7 @@ from collections import namedtuple
 from datetime import datetime
 from flask import Flask, request
 from google.cloud import storage,firestore
+import firebase_admin
 from firebase_admin import auth
 import json
 import os
@@ -23,6 +24,7 @@ FAIL_RATE = os.getenv("FAIL_RATE", 0)
 
 app = Flask(__name__)
 db = firestore.Client()
+firebase_admin.initialize_app()
 
 storage_client = storage.Client()
 bucket_name = 'antisomnus-bucket'
@@ -45,8 +47,8 @@ def add_user(user_id):
     try:
         # Get the user's info from Firebase Authentication
         user_info = auth.get_user(user_id)
-    except auth.AuthError as auth_error:
-        print(f"An error occurred: {auth_error}")
+    except auth.UserNotFoundError:
+        print("An error occurred while retrieving the user's info.")
         user_info = namedtuple('user_info', ['display_name', 'email'])
         user_info = user_info('John Doe', 'jdoe@gmail.com')
 
@@ -76,50 +78,16 @@ def add_document(filename, drowsiness_events, drowsiness_summary, user_id):
         year,month,day,hour,minute,second = matches.groups()
         timestamp = datetime(int(year),int(month),int(day),int(hour),int(minute),int(second))
         document_title = timestamp.strftime("%Y-%m-%d")
-        # check if the document exists in the Firestore collection already
+
         doc_ref = db.collection('users').document(user_id).collection('data').document(document_title)
-        doc = doc_ref.get()
-        if doc.exists:
-            # add driver_sessions as a subcollection, where each timestamp represents the start of a driver session.
-            doc_ref.collection('driver_sessions').add({
-                'date': timestamp,
-                'drowsiness_events': drowsiness_events,
-                'drowsiness_summary': drowsiness_summary
-            })
-        else:
-            # create a new document with document_title as the title and add driver_sessions as a subcollection
-            doc_ref.set()
-            doc_ref.collection('driver_sessions').add({
-                'date': timestamp,
-                'drowsiness_events': drowsiness_events,
-                'drowsiness_summary': drowsiness_summary
-            })
+        doc_ref.collection('driver_sessions').add({
+            'date': timestamp,
+            'drowsiness_events': drowsiness_events,
+            'drowsiness_summary': drowsiness_summary
+        })
     else:
         return None
-
-def process_video(user_id, video_file):
-    """Processes a video file and adds the drowsiness events to the database."""
-    frame_data = {}
-    frame_number = 0
-    drowsiness_events = []
-    drowsiness_summary = {"drowsy": 0, "not_drowsy": 0}
-    frame_number = video_to_frames(video_file, drowsiness_events, drowsiness_summary, frame_data, frame_number)
-    # Add the drowsiness events to the database
-    add_document(video_file, drowsiness_events, drowsiness_summary, user_id)
-
-    # Save and upload the pickle file
-    with open(f"/tmp/training_data.pkl", 'wb') as output:
-        pickle.dump(frame_data, output, pickle.HIGHEST_PROTOCOL)
-    blob = bucket.blob(f'users/{user_id}/prediction_data/training_data.pkl')
-    blob.upload_from_filename(f"/tmp/training_data.pkl")
-    os.remove('/tmp/training_data.pkl')  # remove the local pickle file after uploading
-
-    # Delete the processed video file from the bucket
-    video_blob = bucket.blob(video_file)
-    video_blob.delete()
-
-
-
+    
 def video_to_frames(blob_name, drowsiness_events, drowsiness_summary, frame_dict,frame_number=0):
     """Extracts frames from a video and saves them to a local directory."""
     drowsy = 0
@@ -174,6 +142,27 @@ def video_to_frames(blob_name, drowsiness_events, drowsiness_summary, frame_dict
 
     return frame_number
 
+def process_video(user_id, video_file):
+    """Processes a video file and adds the drowsiness events to the database."""
+    frame_data = {}
+    frame_number = 0
+    drowsiness_events = []
+    drowsiness_summary = {"drowsy": 0, "not_drowsy": 0}
+    frame_number = video_to_frames(video_file, drowsiness_events, drowsiness_summary, frame_data, frame_number)
+    # Add the drowsiness events to the database
+    add_document(video_file, drowsiness_events, drowsiness_summary, user_id)
+
+    # Save and upload the pickle file
+    with open(f"/tmp/training_data.pkl", 'wb') as output:
+        pickle.dump(frame_data, output, pickle.HIGHEST_PROTOCOL)
+    blob = bucket.blob(f'users/{user_id}/prediction_data/training_data.pkl')
+    blob.upload_from_filename(f"/tmp/training_data.pkl")
+    os.remove('/tmp/training_data.pkl')  # remove the local pickle file after uploading
+
+    # Delete the processed video file from the bucket
+    video_blob = bucket.blob(video_file)
+    video_blob.delete()
+
 @app.route('/', methods=['POST'])
 def main():
     """Main entry point for the application. This function gets triggered
@@ -205,8 +194,8 @@ def main():
             process_video(user_id, video_file)
         
         # Delete the signal file
-        signal_blob = bucket.blob(file_path)
-        signal_blob.delete()
+        #signal_blob = bucket.blob(file_path)
+        #signal_blob.delete()
 
     return ('', 204)
 
